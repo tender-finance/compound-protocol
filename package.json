@@ -13,7 +13,7 @@
     "profile": "yarn test tests/gasProfiler.js",
     "report": "npx run ./script/saddle/gasReport.js",
     "test": "./script/test",
-    "test:new": "./tender/test/test.ts",
+    "test:local": "npx hardhat --network localhost test ./tender/test/test.ts",
     "test:prepare": "NO_RUN=true ./script/test",
     "checksize": "npx run ./script/saddle/comptrollerSize.js",
     "hh": "hardhat run",
