@@ -87,8 +87,8 @@ describe('tUSDC', () => {
       let tBalance: number = await getErc20Balance(tTokenContract, wallet);
       let uBalance: number = await getErc20Balance(uTokenContract, wallet);
 
-      await tTokenContract.approve(uTokenContract.address, 300000);
-      await tTokenContract.redeem(300000);
+      await tTokenContract.approve(uTokenContract.address, 30000);
+      await tTokenContract.redeem(30000);
       // clarify parameter, doesn't seem to redeem right amount acc. to docs
 
       tBalance = await getErc20Balance(tTokenContract, wallet) - tBalance;

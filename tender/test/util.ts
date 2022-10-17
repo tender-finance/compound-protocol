@@ -2,7 +2,7 @@ import { JsonRpcProvider, JsonRpcSigner } from '@ethersproject/providers';
 import { Wallet } from 'ethers';
 import { readFileSync } from 'fs';
 import axios, { AxiosResponse } from 'axios';
-import { join } from 'path';
+import { join, resolve } from 'path';
 import * as hre from 'hardhat';
 import * as fs from 'fs'
 import * as dotenv from 'dotenv';
@@ -47,8 +47,8 @@ export const impersonateAccount = async (address: string, provider: JsonRpcProvi
 
 const tokenInfoMap: TokenInfo = {
   tusdc: {
-    address: '0x0BdF3cb0D390ce8d8ccb6839b1CfE2953983b5f1',
-    implementation: '0x8765B2266ebCd935c8c781d93F2e3BFA0da34c6e',
+    address: '0xB1087a450373BB26BCf1A18E788269bde9c8fc85',
+    implementation: '0x1CFa3F44DFCb38d2DA0f5d707ED3309D264168d2',
     underlying: {
       address: '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
       implementation: '0x1eFB3f88Bc88f03FD1804A5C53b7141bbEf5dED8'
@@ -56,6 +56,51 @@ const tokenInfoMap: TokenInfo = {
   }
 }
 
+export const getDeployments = () => {
+  const fpath = resolve(join(__dirname, '../../deployments/arbitrum.json'));
+  try {
+    const file = fs.readFileSync(fpath, "utf8")
+    const json = JSON.parse(file)
+    return json;
+  } catch (e) {
+    console.log(`e`, e)
+    return {};
+  }
+}
 export const getTokenInfo = (tokenName: string) => {
   return tokenInfoMap[tokenName];
 }
+
+export const resetNetwork = async () => {
+  await hre.network.provider.request({
+    method: 'hardhat_reset',
+    params: [
+      {
+        allowUnlimitedContractSize: true,
+        forking: {
+          jsonRpcUrl: `https://arbitrum-mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
+          enabled: true,
+          ignoreUnknownTxType: true,
+        },
+      },
+    ],
+  })
+}
+
+export const getContractInstance = (contractName: string, tokenAddress: string, signer: JsonRpcSigner) => {
+  const abiPath = resolve(
+    __dirname,
+    `../../artifacts/contracts/${contractName}.sol/${contractName}.json`
+  )
+  const abi = parseAbiFromJson(abiPath);
+  return new ethers.Contract(tokenAddress, abi, signer);
+}
+
+export const getErc20Balance = async (tokenContract: Contract, wallet: JsonRpcSigner): Promise<BigNumber> => {
+  return await tokenContract.balanceOf(wallet._address);
+}
+
+export const getEthBalance = async (provider: JsonRpcProvider, wallet: JsonRpcSigner): Promise<BigNumber> => {
+  return await provider.getBalance(wallet._address)
+}
+
