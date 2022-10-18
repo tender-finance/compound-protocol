@@ -4,7 +4,7 @@ import { formatAmountEther, formatAmountErc20, getEthBalance } from './TokenUtil
 import * as ethers from 'ethers';
 import { JsonRpcSigner, JsonRpcProvider, ExternalProvider } from '@ethersproject/providers';
 import { resolve } from 'path';
-import { parseAbiFromJson, getDeployments } from './util'
+import { parseAbiFromJson, getDeployments } from './TestUtil'
 import axios from 'axios';
 
 // do not allow numbers since they cause issues

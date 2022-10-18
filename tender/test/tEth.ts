@@ -1,6 +1,7 @@
 import { JsonRpcSigner, JsonRpcProvider, ExternalProvider } from '@ethersproject/providers';
 import { CTokenContract } from './Token'
-import { getWallet, getDeployments, getComptrollerContract, resetNetwork } from './util'
+import { getWallet, getDeployments, resetNetwork } from './TestUtil'
+import { getComptrollerContract } from './TokenUtil';
 import * as hre from 'hardhat';
 import * as ethers from 'ethers'
 import { BigNumber, Contract } from 'ethers';
