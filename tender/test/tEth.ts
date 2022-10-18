@@ -1,92 +1,93 @@
-import * as hre from 'hardhat';
-import * as ethers from 'ethers';
-
 import { JsonRpcSigner, JsonRpcProvider, ExternalProvider } from '@ethersproject/providers';
-import { Contract, BigNumber } from 'ethers';
-import * as fs from 'fs';
-import {
-  getTokenInfo,
-  impersonateAccount,
-  parseAbiFromJson,
-  resetNetwork,
-  getEthBalance,
-  getContractInstance,
-  getErc20Balance,
-  getDeployments,
-} from './util';
+import { CTokenContract } from './Token'
+import { getWallet, getDeployments, getComptrollerContract, resetNetwork } from './util'
+import * as hre from 'hardhat';
+import * as ethers from 'ethers'
+import { BigNumber, Contract } from 'ethers';
 import { expect } from 'chai';
-
 const hreProvider = hre.network.provider;
-// eslint disable-next-line
-const provider = new ethers.providers.Web3Provider(hreProvider as any);
 
 const walletAddress = '0x52134afB1A391fcEEE6682E51aedbCD47dC55336';
+const provider = new ethers.providers.Web3Provider(hreProvider as any);
 
-const deployments = getDeployments();
-const tokenAddress = deployments['tEth'];
-const comptrollerAddress = deployments['Comptroller'];
+let tEthContract: CTokenContract;
+let wallet: JsonRpcSigner;
+let comptrollerContract: Contract;
+let deployments = getDeployments();
 
-describe('tETH', () => {
+describe('tEth', () => {
+  before(async () => {
+    await resetNetwork();
+    wallet = await getWallet(walletAddress, provider)
+    tEthContract = await tEthContractInit(wallet);
+    const comptrollerAddress = await tEthContract.comptroller();
+    comptrollerContract = getComptrollerContract(wallet)
+  })
+
   describe('Mint', () => {
     it('Should have more tTokens and fewer uTokens', async () => {
-      // await resetNetwork();
-      const wallet = await impersonateAccount(walletAddress, provider);
-
-      const tTokenContract = getContractInstance('CEther', tokenAddress, wallet)
-
-      const tBalance: BigNumber = await getErc20Balance(tTokenContract, wallet);
-      const uBalance: BigNumber = await getEthBalance(provider, wallet)
-
-      const formattedValue = ethers.utils.parseEther('.001');
-      await tTokenContract.mint({value: formattedValue});
-
-      const tBalanceNew: BigNumber = await getErc20Balance(tTokenContract, wallet);
-      const uBalanceNew: BigNumber = await getEthBalance(provider, wallet);
-
-      const tBalanceTest = tBalanceNew.sub(tBalance).gt(0);
-      const uBalanceTest = uBalanceNew.sub(uBalance).lt(0);
-
+      const tBalance = await tEthContract.balanceOf(wallet._address);
+      const uBalance = await getEthBalance(provider, wallet);
+      await tEthContract.mint(formatAmountEther(.001));
+      const tBalanceTest = (await tEthContract.balanceOf(wallet._address)).sub(tBalance).gt(0);
+      const uBalanceTest = (await getEthBalance(provider, wallet)).sub(uBalance).lt(0);
       expect(tBalanceTest).to.be.true;
       expect(uBalanceTest).to.be.true;
     });
   });
-  describe('borrow', () => {
-    it('Should have more tTokens and respect Limits', async () => {
-      const wallet = await impersonateAccount(walletAddress, provider);
-      const comptrollerContract = getContractInstance('Comptroller', comptrollerAddress, wallet)
-      const tTokenContract = getContractInstance('CEther', tokenAddress, wallet)
-      const currentBorrowAmount = await tTokenContract.borrowBalanceStored(wallet._address);
 
-      const formattedValue = ethers.utils.parseEther('.0001');
-      await tTokenContract.borrow(formattedValue);
+  describe('redeem', () => {
+    it('Should have less tTokens and more uTokens', async () => {
+      const tBalance = await tEthContract.balanceOf(wallet._address);
+      const uBalance = await getEthBalance(provider, wallet);
 
-      const newBorrowAmount = await tTokenContract.borrowBalanceStored(wallet._address);
-      console.log('currentBorrowAmount', currentBorrowAmount.toString());
-      console.log('newBorrowAmount', newBorrowAmount.toString());
-      // const uBalanceTest = uBalanceNew.sub(uBalance).gt(0);
-      //
-      // expect(uBalanceTest).to.be.true;
+      const redeemAmount = tBalance.div(2);
+
+      await tEthContract.approve(wallet._address, redeemAmount);
+      await tEthContract.redeem(redeemAmount);
+
+      const tBalanceTest = (await tEthContract.balanceOf(wallet._address)).sub(tBalance).lt(0);
+      const uBalanceTest = (await getEthBalance(provider, wallet)).sub(uBalance).gt(0);
+
+
+      expect(tBalanceTest).to.be.true;
+      expect(uBalanceTest).to.be.true;
+    });
+  })
+  describe('Borrow', () => {
+    it('Should have more tTokens and fewer uTokens', async () => {
+      // let borrowBalance = await tEthContract.borrowBalanceStored()
+      const marketAddresses = []
+      const markets = await comptrollerContract.getAllMarkets();
+      console.log(markets)
+      console.log(comptrollerContract)
+      const { 1: liquidity } = await comptrollerContract.getAccountLiquidity(wallet._address)
+      console.log(liquidity)
+      // let markets = await comptrollerContract.allMarkets();
+      // console.log(markets);
+      // let liquidity =  await comptrollerContract.getAccountLiquidity(wallet._address)
+      // console.log(liquidity);
+      // console.log(markets)
+      // console.log(liquidity)
+      // console.log(accountLiquidity.toString())
+      // console.log(borrowBalance.toString())
+      // await tEthContract.borrow(formatAmountEther(accountLiquidity));
+      // borrowBalance = await tEthContract.borrowBalanceStored()
+      // console.log(borrowBalance.toString())
     });
   });
-  // describe('redeem', () => {
-  //   it('Should have less tTokens and more uTokens', async () => {
-  //     const wallet = await impersonateAccount(walletAddress, provider);
-  //     const tTokenContract = getContractInstance('CEther', tokenAddress, wallet)
-  //
-  //     let tBalance: BigNumber = await getErc20Balance(tTokenContract, wallet);
-  //     let uBalance: BigNumber = await getEthBalance(provider, wallet)
-  //
-  //     await tTokenContract.redeem(tBalance);
-  //
-  //     const tBalanceNew: BigNumber = await getErc20Balance(tTokenContract, wallet);
-  //     const uBalanceNew: BigNumber = await getEthBalance(provider, wallet);
-  //
-  //     const tBalanceTest = tBalanceNew.sub(tBalance).lt(0);
-  //     // this might fail when gas is really really high
-  //     const uBalanceTest = uBalanceNew.sub(uBalance).gt(0);
-  //
-  //     expect(tBalanceTest).to.be.true;
-  //     expect(uBalanceTest).to.be.true;
-  //   });
-  // })
-});
+})
+
+const formatAmountEther = (amount: number) => {
+  // CEther requires special formatting for inputs
+  return ethers.utils.parseEther(amount.toString());
+
+}
+
+const getEthBalance = async (provider: JsonRpcProvider, account: JsonRpcSigner) => {
+  return await provider.getBalance(account._address);
+}
+
+const tEthContractInit = (wallet) => {
+  return new CTokenContract("tEth", 'CEther', wallet);
+}
