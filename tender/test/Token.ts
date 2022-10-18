@@ -1,5 +1,6 @@
 import { Wallet, Contract, BigNumber } from 'ethers';
 import { formatEther, formatUnits } from 'ethers/lib/utils'
+import { formatAmountEther, formatAmountErc20, getEthBalance } from './TokenUtil'
 import * as ethers from 'ethers';
 import { JsonRpcSigner, JsonRpcProvider, ExternalProvider } from '@ethersproject/providers';
 import { resolve } from 'path';
@@ -17,7 +18,8 @@ export class CTokenContract {
   public symbol: string;
   public address: string;
   public contract: Contract;
-  public contractName: string;
+
+  private contractName: string;
 
   constructor(symbol: string, contractName: string, signer: JsonRpcSigner) {
     const address = getDeployments()[symbol];
