@@ -42,6 +42,11 @@ jobs:
           key: v3-scenario-dependencies-{{ checksum "scenario/yarn.lock" }}
       - attach_workspace:
           at: ~/repo
+      - run:
+          command: npx hardhat node:test
+          background: true
+      - run:
+          command: npx hardhat test tender/test/Erc20.ts
       - run: mkdir ~/junit
       - run: ./script/build_scenarios
       - run:
@@ -75,11 +80,6 @@ jobs:
           path: ~/junit
       - store_artifacts:
           path: ~/junit
-      - run:
-          command: npx hardhat node:test
-          background: true
-      - run:
-          command: npx hardhat test:local
     parallelism: 3
     resource_class: xlarge
 
