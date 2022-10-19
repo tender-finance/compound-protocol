@@ -4,8 +4,8 @@ import * as ethers from 'ethers';
 import { JsonRpcSigner, JsonRpcProvider, ExternalProvider } from '@ethersproject/providers';
 import { resolve } from 'path';
 import { parseAbiFromJson, getDeployments } from './TestUtil'
-import { formatAmountErc20 } from './TokenUtil'
 import { CTokenContract } from './Token'
+import { formatAmount } from './TokenUtil'
 
 export class ComptrollerContract {
   constructor(signer: JsonRpcSigner) {
@@ -23,7 +23,7 @@ export class ComptrollerContract {
 
   getCurrentlyBorrowing = async (signer: JsonRpcSigner, cTokenContract: CTokenContract, underlyingDecimals: number) => {
     const balance = await cTokenContract.borrowBalanceStored(signer._address);
-    return formatAmountErc20(balance, underlyingDecimals);
+    return formatAmount(balance, underlyingDecimals);
   }
 
   getCurrentlySupplying = async (signer: JsonRpcSigner, cTokenContract: CTokenContract, underlyingDecimals: number) => {
@@ -31,9 +31,9 @@ export class ComptrollerContract {
     let exchangeRateCurrent: BigNumber = await cTokenContract.exchangeRateStored();
     let tokens = balance.mul(exchangeRateCurrent);
     // the exchange rate is scaled by 18 decimals
-    return formatAmountErc20(tokens, underlyingDecimals+18);
+    return formatAmount(tokens, underlyingDecimals+18);
   };
-
+}
 
   // getAccountBorrowLimitInUsd =  async function getAccountBorrowLimitInUsd(
   // signer: Signer,
