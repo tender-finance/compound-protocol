@@ -6,34 +6,22 @@ import { resolve } from 'path';
 import { parseAbiFromJson, getDeployments } from './TestUtil'
 import axios from 'axios';
 
-export const formatAmountEther = (amount: string, decimals: number) => {
-  // CEther requires special formatting for inputs
-  return ethers.utils.parseEther(amount);
+export const formatAmount = (amount: string, decimals: number) => {
+  const regex = /^0*\.0*/;
+  let match = amount.match(regex)
+  amount = match ? amount.replace(match[0], '') : amount;
 
-}
+  const leadingZeros = match ? match[0].split('.')[1].length + 1 : 0;
+  decimals = decimals - leadingZeros;
 
-export const formatAmountErc20 = (amount: string, decimals: number) => {
-  const decimalFactor = BigNumber.from('10').pow(decimals)
-  return BigNumber.from(amount).mul(decimalFactor);
-}
-
-export async function getEthBalance (provider: JsonRpcProvider, account: JsonRpcSigner) {
-  return await provider.getBalance(account._address);
+  const scaleFactor = BigNumber.from('10').pow(decimals);
+  return BigNumber.from(amount).mul(scaleFactor);
 }
 
 export const getCollateralFactor = async (comptrollerContract: Contract, tTokenAddress: string) => {
   await comptrollerContract.enterMarkets([tTokenAddress]);
   const { 1: rawCollateralFactor } = await comptrollerContract.markets(tTokenAddress);
-  let collateralFactor: number = parseFloat(formatUnits(rawCollateralFactor, 18));
-  return collateralFactor;
-}
-
-export function formatBigNumber(value: BigNumber, decimals: number): number {
-  // formatUnits returns a string with the decimals in the appropriate place,
-  // and it needs to be made a float.
-  let formattedUnit = formatUnits(value, decimals);
-  let val = parseFloat(formattedUnit);
-  return val;
+  return formatAmount(rawCollateralFactor, 18)
 }
 
 export const getComptrollerContract = (wallet: JsonRpcSigner) =>{
@@ -49,5 +37,16 @@ export const getCurrentlySupplying = async (tTokenContract: Contract, wallet: Js
   let tokens = balance.mul(exchangeRateCurrent)
   // the exchange rate is scaled by 18 decimals
   const tokenDecimals = await tTokenContract.decimals() + 18;
-  return formatBigNumber(tokens, tokenDecimals);
+  return formatAmount(tokens, tokenDecimals);
 };
+
+export const getUnderlyingBalance = async (
+  uBalanceProvider: any,
+  address: string
+) => {
+  if (uBalanceProvider['getBalance']) {
+    return await uBalanceProvider.getBalance(address);
+  } else {
+    return await uBalanceProvider.balanceOf(address);
+  }
+}

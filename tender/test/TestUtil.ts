@@ -1,6 +1,7 @@
 import { JsonRpcSigner, JsonRpcProvider, ExternalProvider } from '@ethersproject/providers';
 import { Wallet, Contract, BigNumber } from 'ethers';
 import { formatEther, formatUnits } from 'ethers/lib/utils'
+import { CTokenContract } from './Token';
 import { readFileSync } from 'fs';
 import { join, resolve } from 'path';
 import * as hre from 'hardhat';
@@ -17,6 +18,42 @@ const accounts = {};
 const arbiscanKey = process.env.ARBISCAN_KEY;
 const arbiscanUrl = 'https://api.arbiscan.io/api?module=contract&action=getabi&apikey=' + arbiscanKey + '&address=';
 
+export const preTest = async (test, provider, walletAddress) => {
+  let erc20Contract: CTokenContract;
+  let uContract: Contract;
+  let wallet: JsonRpcSigner;
+
+  let tDecimals: number;
+  let uDecimals: number;
+  let uContractAddress: string;
+
+  let uBalanceProvider: Contract | JsonRpcProvider;
+
+  wallet = await getWallet(test.walletAddress, provider)
+  erc20Contract = new CTokenContract(test.symbol, test.contractName, wallet);
+  tDecimals = await erc20Contract.decimals();
+
+  if (erc20Contract['underlying']) {
+    // tEth has no underlying method
+    uContractAddress = await erc20Contract.underlying();
+    uContract = new Contract(uContractAddress, erc20Contract.abi, wallet);
+    uBalanceProvider = uContract;
+    uDecimals = await uContract.decimals();
+  } else {
+    uContract = null;
+    uDecimals = 18; // Ether decimals
+    uBalanceProvider = provider;
+  }
+  return {
+    erc20Contract,
+    uContract,
+    wallet,
+    tDecimals,
+    uDecimals,
+    uContractAddress,
+    uBalanceProvider,
+  }
+}
 export const getAbiFromArbiscan = async function (address) {
   const url = arbiscanUrl + address;
   return axios.get(url)

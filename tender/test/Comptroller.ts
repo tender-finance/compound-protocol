@@ -3,8 +3,9 @@ import { formatEther, formatUnits } from 'ethers/lib/utils'
 import * as ethers from 'ethers';
 import { JsonRpcSigner, JsonRpcProvider, ExternalProvider } from '@ethersproject/providers';
 import { resolve } from 'path';
-import { parseAbiFromJson, getDeployments } from './util'
-import { CTokenContract, TokenContract } from './Token'
+import { parseAbiFromJson, getDeployments } from './TestUtil'
+import { formatAmountErc20 } from './TokenUtil'
+import { CTokenContract } from './Token'
 
 export class ComptrollerContract {
   constructor(signer: JsonRpcSigner) {
@@ -20,12 +21,34 @@ export class ComptrollerContract {
     );
   }
 
-  getCurrentlySupplying = async (cTokenContract: CTokenContract, wallet: JsonRpcSigner) => {
-    let balance = await cTokenContract.getBalance(wallet)
+  getCurrentlyBorrowing = async (signer: JsonRpcSigner, cTokenContract: CTokenContract, underlyingDecimals: number) => {
+    const balance = await cTokenContract.borrowBalanceStored(signer._address);
+    return formatAmountErc20(balance, underlyingDecimals);
+  }
+
+  getCurrentlySupplying = async (signer: JsonRpcSigner, cTokenContract: CTokenContract, underlyingDecimals: number) => {
+    let balance = await cTokenContract.balanceOf(signer._address);
     let exchangeRateCurrent: BigNumber = await cTokenContract.exchangeRateStored();
-    let tokens = balance.mul(exchangeRateCurrent)
+    let tokens = balance.mul(exchangeRateCurrent);
     // the exchange rate is scaled by 18 decimals
-    const tokenDecimals = await cTokenContract.decimals() + 18;
-    return formatBigNumber(tokens, tokenDecimals);
+    return formatAmountErc20(tokens, underlyingDecimals+18);
   };
-}
+
+
+  // getAccountBorrowLimitInUsd =  async function getAccountBorrowLimitInUsd(
+  // signer: Signer,
+  // comptrollerAddress: string,
+  // tokenPairs: TokenPair[]
+  //   signer: Signer,
+  //   comptrollerAddress: string,
+  //   tokenPairs: TokenPair[]
+  //   tokenBalancesInUsd = await Promise.all(
+  //     tokenPairs.map(async (tokenPair: TokenPair): Promise<number> => {
+  //       return borrowLimitForTokenInUsd(signer, comptrollerContract, tokenPair);
+  //     })
+  //   );
+  //
+  //   let borrowLimit = tokenBalancesInUsd.reduce((acc, curr) => acc + curr, 0);
+  //
+  //   return borrowLimit;
+  // }

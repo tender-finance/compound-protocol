@@ -1,6 +1,6 @@
 import { Wallet, Contract, BigNumber } from 'ethers';
 import { formatEther, formatUnits } from 'ethers/lib/utils'
-import { formatAmountEther, formatAmountErc20, getEthBalance } from './TokenUtil'
+import { formatAmount } from './TokenUtil'
 import * as ethers from 'ethers';
 import { JsonRpcSigner, JsonRpcProvider, ExternalProvider } from '@ethersproject/providers';
 import { resolve } from 'path';
@@ -8,9 +8,6 @@ import { parseAbiFromJson, getDeployments } from './TestUtil'
 import axios from 'axios';
 
 // do not allow numbers since they cause issues
-type AmountArg = BigNumber | {
- value: ethers.ethers.BigNumber | BigNumber
-}
 
 export class CTokenContract {
   public abi: string;
@@ -18,6 +15,7 @@ export class CTokenContract {
   public symbol: string;
   public address: string;
   public contract: Contract;
+  public underlying?;
 
   private contractName: string;
 
@@ -31,6 +29,12 @@ export class CTokenContract {
     this.address = address;
     if(this.abi) {
       this.contract = new Contract(this.address, this.abi, this.signer);
+    }
+    if(this.contract['underlying']) {
+      this.underlying = async () => {
+        return await this.call('underlying');
+        return this.underlying;
+      }
     }
   }
 
@@ -49,19 +53,14 @@ export class CTokenContract {
     return this.call('balanceOf', address);
   }
 
-  underlying = async () => {
-    return await this.call('underlying');
-    return this.underlying;
-  }
-
-  mint = async (amount: AmountArg) => {
+  mint = async (amount: BigNumber) => {
     if(this.symbol == "tEth") {
       return await this.call('mint', {value: amount});
     }
     return await this.call('mint', amount);
   }
 
-  approve = async (spender: string, amount: AmountArg) => {
+  approve = async (spender: string, amount: BigNumber) => {
     return await this.call('approve', spender, amount);
   }
 
@@ -69,15 +68,15 @@ export class CTokenContract {
     return await this.call('comptroller');
   }
 
-  redeem = async (amount: AmountArg) => {
+  redeem = async (amount: BigNumber) => {
     return await this.call('redeem', amount);
   }
 
-  redeemUnderlying = async (amount: AmountArg) => {
+  redeemUnderlying = async (amount: BigNumber) => {
     return await this.call('redeemUnderlying', amount);
   }
 
-  borrow = async (amount: AmountArg) => {
+  borrow = async (amount: BigNumber) => {
     return await this.call('borrow', amount);
   }
 
