@@ -22,10 +22,10 @@ export const CTOKENS = [
       name: "fsGLP",
       symbol: "tfsGLP",
       decimals: CTOKEN_DECIMALS,
-      collateralFactor: ethers.utils.parseUnits("5", 17),
+      collateralFactor: ethers.utils.parseUnits("8", 17),
       collateralVIP: ethers.utils.parseUnits("95", 16),
-      threshold: ethers.utils.parseUnits("5", 17),
-      thresholdVIP: ethers.utils.parseUnits("95", 16),
+      threshold: ethers.utils.parseUnits("825", 15),
+      thresholdVIP: ethers.utils.parseUnits("975", 15),
       isGLP: true
     },
 
@@ -75,9 +75,9 @@ export const CTOKENS = [
   //   decimals: CTOKEN_DECIMALS,
   //   isGLP: false,
 
-  //   collateralFactor: ethers.utils.parseUnits("40", 16),
+  //   collateralFactor: ethers.utils.parseUnits("75", 16),
   //   collateralVIP: ethers.utils.parseUnits("85", 16),
-  //   threshold: ethers.utils.parseUnits("50", 16),
+  //   threshold: ethers.utils.parseUnits("80", 16),
   //   thresholdVIP: ethers.utils.parseUnits("90", 16)
   // },
 
@@ -85,8 +85,11 @@ export const CTOKENS = [
   //   underlying: "0xf97f4df75117a78c1A5a0DBb814Af92458539FB4",
   //   name: "tLINK",
   //   symbol: "tLINK",
-  //   decimals: CTOKEN_DECIMALS,
-  //   collateralFactor: ethers.utils.parseUnits("5", 17),
+  //   decimals: CTOKEN_DECIMALS,  
+  //   collateralFactor: ethers.utils.parseUnits("40", 16),
+  //   collateralVIP: ethers.utils.parseUnits("60", 16),
+  //   threshold: ethers.utils.parseUnits("50", 16),
+  //   thresholdVIP: ethers.utils.parseUnits("80", 16)
   //   isGLP: false
   // },
 
@@ -94,8 +97,11 @@ export const CTOKENS = [
   //   underlying: "0xFa7F8980b0f1E64A2062791cc3b0871572f1F7f0",
   //   name: "tUNI",
   //   symbol: "tUNI",
-  //   decimals: CTOKEN_DECIMALS,
-  //   collateralFactor: ethers.utils.parseUnits("5", 17),
+  //   decimals: CTOKEN_DECIMALS,  
+  //   collateralFactor: ethers.utils.parseUnits("40", 16),
+  //   collateralVIP: ethers.utils.parseUnits("60", 16),
+  //   threshold: ethers.utils.parseUnits("50", 16),
+  //   thresholdVIP: ethers.utils.parseUnits("80", 16)
   //   isGLP: false
   // },
 
@@ -108,8 +114,8 @@ export const GMX = {
   decimals: 8,
   collateralFactor: ethers.utils.parseUnits("5", 17),
   collateralVIP: ethers.utils.parseUnits("80", 16),
-  threshold: ethers.utils.parseUnits("5", 17),
-  thresholdVIP: ethers.utils.parseUnits("80", 16),
+  threshold: ethers.utils.parseUnits("6", 17),
+  thresholdVIP: ethers.utils.parseUnits("85", 16),
   isGLP: false,
 }
 

@@ -7,9 +7,9 @@ const outputFilePath = `./deployments/${hre.network.name}.json`;
 
 const CTOKEN_DECIMALS = 8;
 
-const collateralFactor = ethers.utils.parseUnits("70", 16);
+const collateralFactor = ethers.utils.parseUnits("80", 16);
 const collateralVIP = ethers.utils.parseUnits("85", 16);
-const threshold = ethers.utils.parseUnits("75", 16);
+const threshold = ethers.utils.parseUnits("825", 15);
 const thresholdVIP = ethers.utils.parseUnits("90", 16);
 const isComped = false 
 const isPrivate = false
