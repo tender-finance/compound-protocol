@@ -1,0 +1,409 @@
+綠~/Dev/work/deployment master !2 npx hardhat run tender/hh/deploy-cdelegator.ts --network arbitrum
+Warning: SPDX license identifier not provided in source file. Before publishing, consider adding a comment containing "SPDX-License-Identifier: <SPDX-License>" to each source file. U
+se "SPDX-License-Identifier: UNLICENSED" for non-open-source code. Please see https://spdx.org for more information.
+--> contracts/Governance/GovernorBravoDelegateG1.sol
+
+
+Warning: SPDX license identifier not provided in source file. Before publishing, consider adding a comment containing "SPDX-License-Identifier: <SPDX-License>" to each source file. U
+se "SPDX-License-Identifier: UNLICENSED" for non-open-source code. Please see https://spdx.org for more information.
+--> contracts/IRewardTracker.sol
+
+
+Warning: This declaration shadows an existing declaration.
+   --> contracts/Comptroller.sol:530:13:
+    |
+530 |             Error err = addToMarketInternal(CToken(msg.sender), borrower);
+    |             ^^^^^^^^^
+Note: The shadowed declaration is here:
+   --> contracts/Comptroller.sol:552:13:
+    |
+552 |             Error err,
+    |             ^^^^^^^^^
+
+
+Warning: This declaration shadows an existing declaration.
+   --> contracts/ComptrollerG7.sol:372:13:
+    |
+372 |             Error err = addToMarketInternal(CToken(msg.sender), borrower);
+    |             ^^^^^^^^^
+Note: The shadowed declaration is here:
+   --> contracts/ComptrollerG7.sol:394:10:
+    |
+394 |         (Error err, , uint shortfall) = getHypotheticalAccountLiquidityInternal(borrower, CToken(cToken), 0, borrowAmount);
+    |          ^^^^^^^^^
+
+
+Warning: This declaration shadows an existing declaration.
+   --> contracts/Governance/GovernorAlpha.sol:204:9:
+    |
+204 |         ProposalState state = state(proposalId);
+    |         ^^^^^^^^^^^^^^^^^^^
+Note: The shadowed declaration is here:
+   --> contracts/Governance/GovernorAlpha.sol:227:5:
+    |
+227 |     function state(uint proposalId) public view returns (ProposalState) {
+    |     ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Warning: This contract has a payable fallback function, but no receive ether function. Consider adding a receive ether function.
+  --> contracts/CErc20Delegator.sol:15:1:
+   |
+15 | contract CErc20Delegator is CTokenInterface, CErc20Interface, CDelegatorInterface {
+   | ^ (Relevant source part starts here and spans across multiple lines).
+Note: The payable fallback function is defined here.
+   --> contracts/CErc20Delegator.sol:553:5:
+    |
+553 |     fallback() external payable {
+    |     ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Warning: This contract has a payable fallback function, but no receive ether function. Consider adding a receive ether function.
+  --> contracts/CErc20DelegatorGmx.sol:15:1:
+   |
+15 | contract CErc20DelegatorGmx is CTokenInterface, CErc20Interface, CDelegatorInterface {
+   | ^ (Relevant source part starts here and spans across multiple lines).
+Note: The payable fallback function is defined here.
+   --> contracts/CErc20DelegatorGmx.sol:550:5:
+    |
+550 |     fallback() external payable {
+    |     ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Warning: This contract has a payable fallback function, but no receive ether function. Consider adding a receive ether function.
+  --> contracts/CErc20DelegatorTnd.sol:15:1:
+   |
+15 | contract CErc20DelegatorTnd is CTokenInterfaceTnd, CErc20InterfaceTnd, CDelegatorInterfaceTnd {
+   | ^ (Relevant source part starts here and spans across multiple lines).
+Note: The payable fallback function is defined here.
+   --> contracts/CErc20DelegatorTnd.sol:510:5:
+    |
+510 |     fallback() external payable {
+    |     ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Warning: This contract has a payable fallback function, but no receive ether function. Consider adding a receive ether function.
+  --> contracts/Unitroller.sol:11:1:
+   |
+11 | contract Unitroller is UnitrollerAdminStorage, ComptrollerErrorReporter {
+   | ^ (Relevant source part starts here and spans across multiple lines).
+Note: The payable fallback function is defined here.
+   --> contracts/Unitroller.sol:136:5:
+    |
+136 |     fallback() payable external {
+    |     ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Warning: This contract has a payable fallback function, but no receive ether function. Consider adding a receive ether function.
+ --> contracts/Governance/GovernorBravoDelegator.sol:6:1:
+  |
+6 | contract GovernorBravoDelegator is GovernorBravoDelegatorStorage, GovernorBravoEvents {
+  | ^ (Relevant source part starts here and spans across multiple lines).
+Note: The payable fallback function is defined here.
+  --> contracts/Governance/GovernorBravoDelegator.sol:66:5:
+   |
+66 |     fallback () external payable {
+   |     ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Warning: This contract has a payable fallback function, but no receive ether function. Consider adding a receive ether function.
+ --> contracts/Timelock.sol:6:1:
+  |
+6 | contract Timelock {
+  | ^ (Relevant source part starts here and spans across multiple lines).
+Note: The payable fallback function is defined here.
+  --> contracts/Timelock.sol:35:5:
+   |
+35 |     fallback() external payable { }
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+Warning: Visibility for constructor is ignored. If you want the contract to be non-deployable, making it "abstract" is sufficient.
+  --> contracts/BaseJumpRateModelV2.sol:54:5:
+   |
+54 |     constructor(uint baseRatePerYear, uint multiplierPerYear, uint jumpMultiplierPerYear, uint kink_, address owner_) internal {
+   |     ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Warning: Visibility for constructor is ignored. If you want the contract to be non-deployable, making it "abstract" is sufficient.
+  --> contracts/BaseJumpRateModelV2Gmx.sol:72:5:
+   |
+72 |     constructor(uint baseRatePerYear, uint multiplierPerYear, uint jumpMultiplierPerYear, uint kink_, address owner_) internal {
+   |     ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Warning: Visibility for constructor is ignored. If you want the contract to be non-deployable, making it "abstract" is sufficient.
+  --> contracts/Unitroller.sol:33:5:
+   |
+33 |     constructor() public {
+   |     ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Warning: Visibility for constructor is ignored. If you want the contract to be non-deployable, making it "abstract" is sufficient.
+  --> contracts/Governance/Comp.sol:63:5:
+   |
+63 |     constructor(address account) public {
+   |     ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Warning: Visibility for constructor is ignored. If you want the contract to be non-deployable, making it "abstract" is sufficient.
+  --> contracts/ComptrollerG7.sol:80:5:
+   |
+80 |     constructor() public {
+   |     ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Warning: Visibility for constructor is ignored. If you want the contract to be non-deployable, making it "abstract" is sufficient.
+  --> contracts/JumpRateModelV2.sol:26:5:
+   |
+26 |     constructor(uint baseRatePerYear, uint multiplierPerYear, uint jumpMultiplierPerYear, uint kink_, address owner_)
+   |     ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Warning: Visibility for constructor is ignored. If you want the contract to be non-deployable, making it "abstract" is sufficient.
+  --> contracts/DAIInterestRateModelV3.sol:40:5:
+   |
+40 |     constructor(uint jumpMultiplierPerY ... ierPerYear, kink_, owner_) public {
+   |     ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Warning: Visibility for constructor is ignored. If you want the contract to be non-deployable, making it "abstract" is sufficient.
+   --> contracts/Governance/GovernorAlpha.sol:130:5:
+    |
+130 |     constructor(address timelock_, address comp_, address guardian_) public {
+    |     ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Warning: Visibility for constructor is ignored. If you want the contract to be non-deployable, making it "abstract" is sufficient.
+ --> contracts/Governance/GovernorBravoDelegator.sol:7:2:
+  |
+7 |     constructor(
+  |     ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Warning: Visibility for constructor is ignored. If you want the contract to be non-deployable, making it "abstract" is sufficient.
+  --> contracts/JumpRateModel.sol:47:5:
+   |
+47 |     constructor(uint baseRatePerYear, uint multiplierPerYear, uint jumpMultiplierPerYear, uint kink_) public {
+   |     ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Warning: Visibility for constructor is ignored. If you want the contract to be non-deployable, making it "abstract" is sufficient.
+  --> contracts/Maximillion.sol:19:5:
+   |
+19 |     constructor(CEther cEther_) public {
+   |     ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Warning: Visibility for constructor is ignored. If you want the contract to be non-deployable, making it "abstract" is sufficient.
+  --> contracts/Reservoir.sol:33:3:
+   |
+33 |   constructor(uint dripRate_, EIP20Interface token_, address target_) public {
+   |   ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Warning: Visibility for constructor is ignored. If you want the contract to be non-deployable, making it "abstract" is sufficient.
+  --> contracts/Timelock.sol:27:5:
+   |
+27 |     constructor(address admin_, uint delay_) public {
+   |     ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Warning: Visibility for constructor is ignored. If you want the contract to be non-deployable, making it "abstract" is sufficient.
+  --> contracts/WhitePaperInterestRateModel.sol:36:5:
+   |
+36 |     constructor(uint baseRatePerYear, uint multiplierPerYear) public {
+   |     ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Warning: Unnamed return variable can remain unassigned. Add an explicit return with value to all non-reverting code paths or name the variable.
+   --> contracts/BaseJumpRateModelV2Gmx.sol:107:68:
+    |
+107 |     function getGmxAmountTokenPerInterval() internal view returns (uint){
+    |                                                                    ^^^^
+
+
+Warning: Unused local variable.
+   --> contracts/BaseJumpRateModelV2Gmx.sol:113:9:
+    |
+113 |         uint256 gmxPerInterval = (ethPerInterval * ethPrice) / gmxPrice;
+    |         ^^^^^^^^^^^^^^^^^^^^^^
+
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> contracts/CErc20DelegatorGmx.sol:66:76:
+   |
+66 |     function _setImplementation(address implementation_, bool allowResign, bytes memory becomeImplementationData)override public {
+   |                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+    --> contracts/ComptrollerG7.sol:1044:30:
+     |
+1044 |     function getIsAccountVip(address _account)
+     |                              ^^^^^^^^^^^^^^^^
+
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> contracts/DAIInterestRateModelV3.sol:54:34:
+   |
+54 |     function updateJumpRateModel(uint baseRatePerYear, uint gapPerYear, uint jumpMultiplierPerYear, uint kink_) override external {
+   |                                  ^^^^^^^^^^^^^^^^^^^^
+
+
+Warning: Function state mutability can be restricted to pure
+   --> contracts/CErc20.sol:154:5:
+    |
+154 |     function onERC721Received(address, address, uint256, bytes calldata) external returns (bytes4) {
+    |     ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Warning: Function state mutability can be restricted to pure
+   --> contracts/CErc20Gmx.sol:155:5:
+    |
+155 |     function onERC721Received(address, address, uint256, bytes calldata) external returns (bytes4) {
+    |     ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Warning: Function state mutability can be restricted to pure
+   --> contracts/CTokenTnd.sol:552:5:
+    |
+552 |     function borrowFresh(address payable borrower, uint borrowAmount) internal {
+    |     ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Warning: Function state mutability can be restricted to pure
+   --> contracts/CTokenTnd.sol:585:5:
+    |
+585 |     function repayBorrowFresh(address payer, address borrower, uint repayAmount) internal returns (uint) {
+    |     ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Warning: Function state mutability can be restricted to pure
+  --> contracts/CErc20Tnd.sol:71:5:
+   |
+71 |     function mint(uint mintAmount) override external returns (uint) {
+   |     ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Warning: Function state mutability can be restricted to pure
+  --> contracts/CErc20Tnd.sol:97:5:
+   |
+97 |     function redeem(uint redeemTokens) override external returns (uint) {
+   |     ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Warning: Function state mutability can be restricted to pure
+   --> contracts/CErc20Tnd.sol:109:5:
+    |
+109 |     function redeemUnderlying(uint redeemAmount) override external returns (uint) {
+    |     ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Warning: Function state mutability can be restricted to pure
+   --> contracts/CErc20Tnd.sol:131:5:
+    |
+131 |     function borrow(uint borrowAmount) override external returns (uint) {
+    |     ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Warning: Function state mutability can be restricted to pure
+   --> contracts/CErc20Tnd.sol:142:5:
+    |
+142 |     function repayBorrow(uint repayAmount) override external returns (uint) {
+    |     ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Warning: Function state mutability can be restricted to pure
+   --> contracts/CErc20Tnd.sol:154:5:
+    |
+154 |     function repayBorrowBehalf(address borrower, uint repayAmount) override external returns (uint) {
+    |     ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Warning: Function state mutability can be restricted to pure
+   --> contracts/Comptroller.sol:476:5:
+    |
+476 |     function redeemVerify(
+    |     ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Warning: Function state mutability can be restricted to pure
+   --> contracts/ComptrollerG7.sol:335:5:
+    |
+335 |     function redeemVerify(address cToken, address redeemer, uint redeemAmount, uint redeemTokens) override external {
+    |     ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Warning: Function state mutability can be restricted to view
+   --> contracts/ComptrollerG7.sol:498:5:
+    |
+498 |     function liquidateBorrowAllowed(
+    |     ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Warning: Function state mutability can be restricted to pure
+    --> contracts/ComptrollerG7.sol:1044:5:
+     |
+1044 |     function getIsAccountVip(address _account)
+     |     ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Warning: Function state mutability can be restricted to view
+   --> contracts/Lens/CompoundLens.sol:222:5:
+    |
+222 |     function cTokenUnderlyingPrice(CToken cToken) public returns (CTokenUnderlyingPrice memory) {
+    |     ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Warning: Function state mutability can be restricted to view
+   --> contracts/Lens/CompoundLens.sol:247:5:
+    |
+247 |     function getAccountLimits(ComptrollerLensInterface comptroller, address account) public returns (AccountLimits memory) {
+    |     ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Compiled 59 Solidity files successfully
+>>>>>>>>>>>> Deployer: 0x85aBbC0f8681c4fB33B6a3A601AD99E92A32D1ac <<<<<<<<<<<<
+
+Duplicate definition of ActionPaused (ActionPaused(string,bool), ActionPaused(address,string,bool))
+hardhat-tenderly: Warning: No new contracts have been verified. 
+  Contract not eligible for verification Comptroller, ComptrollerInterface, InterestRateModel, EIP20NonStandardInterface, ErrorReporter, IGmxRewardRouter, IStakedGlp, IRewardTracker
+, CTokenInterfaces, EIP20Interface, ExponentialNoError, CToken, PriceOracle, ComptrollerStorage, Unitroller, Comp, IERC165, IERC721, 
+hardhat-tenderly: Warning: No new contracts have been verified. 
+  Contract not eligible for verification EIP20Interface, 
+deploying delegate
+deployed CErc20Delegate 0x29d096714818B96770216FdCe54a8384d0ac9AF9
+Calling delegatorFactory.deploy() with 0x1aDDD80E6039594eE970E5872D247bf0414C8903 0xeed247Ba513A8D6f78BE9318399f5eD1a4808F8e 0xc2933EfF32188e4655887cDC9c707A77E1229595 2000000000000
+00000000000000 fsGLP tfsGLP 8 true 0x85aBbC0f8681c4fB33B6a3A601AD99E92A32D1ac 0x29d096714818B96770216FdCe54a8384d0ac9AF9 <Buffer 00>
+Smart Contracts successfully verified
+  Contract 0xff2073d3810754d6da4783235c8647e11e43c943 verified. You can view the contract at https://dashboard.tenderly.co/contract/arbitrum/0xff2073d3810754d6da4783235c8647e11e43c9
+43
+delegator deployed to: 0xFF2073D3810754D6da4783235c8647e11e43C943
+Nothing to compile
+No need to generate any newer typings.
+Warning: SPDX license identifier not provided in source file. Before publishing, consider adding a comment containing "SPDX-License-Identifier: <SPDX-License>" to each source file. 
+Use "SPDX-License-Identifier: UNLICENSED" for non-open-source code. Please see https://spdx.org for more information.
+--> contracts/IRewardTracker.sol
+
+
+Warning: This contract has a payable fallback function, but no receive ether function. Consider adding a receive ether function.
+  --> contracts/CErc20Delegator.sol:15:1:
+   |
+15 | contract CErc20Delegator is CTokenInterface, CErc20Interface, CDelegatorInterface {
+   | ^ (Relevant source part starts here and spans across multiple lines).
+Note: The payable fallback function is defined here.
+   --> contracts/CErc20Delegator.sol:553:5:
+    |
+553 |     fallback() external payable {
+    |     ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Successfully submitted source code for contract
+contracts/CErc20Delegator.sol:CErc20Delegator at 0xFF2073D3810754D6da4783235c8647e11e43C943
+for verification on the block explorer. Waiting for verification result...
+
+Successfully verified contract CErc20Delegator on Etherscan.
+https://arbiscan.io/address/0xFF2073D3810754D6da4783235c8647e11e43C943#code
+calling ctoken._setGlpAddresses()
+calling unitrollerProxy._supportMarket()
+calling unitrollerProxy._setCollateralFactor()

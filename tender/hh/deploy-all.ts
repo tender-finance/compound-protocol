@@ -39,24 +39,24 @@ async function main() {
   console.log("deploy protocol")
   await DeployProtocol();
 
-  // console.log("deploying GLPOracle")
-  // await GLPOracle();
+  console.log("deploying GLPOracle")
+  await GLPOracle();
 
   // await DeployLens();
 
   console.log("Deploy Jump Model")
   await DeployJumpModel();
 
-  
-  // console.log("deploying CETH")
-  // await DeployCeth()
+
+  console.log("deploying CETH")
+  await DeployCeth()
 
   // Depends on previous deployments
   // await DeployCDelegate();
 
 
   // console.log("deploying CDelegators")
-  await DeployCDelegators()
+  // await DeployCDelegators()
 
   // SetCollateralFactor requires the price to be set first
   // await SetCollateralFactor();
