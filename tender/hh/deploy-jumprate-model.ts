@@ -14,8 +14,8 @@ if (ADMIN_PUBLIC_KEY === "") {
 
 // IR Model Params
 const params = {
-  blocksPerYear: "144752795",
-  baseRate: "7",
+  blocksPerYear: "2628000",
+  baseRate: "6.77", // 6.77 = 7% APY
   kink: "90",
   multiplierPreKink: "0",
   multiplierPostKink: "0",

@@ -350,6 +350,12 @@ abstract contract CToken is CTokenInterface, ExponentialNoError, TokenErrorRepor
 
         glpBlockDelta = _glpBlockDelta;
         prevExchangeRate = exchangeRateStoredInternal();
+
+        // There is a new GLP Reward Router just for minting and burning GLP.    
+        /// https://medium.com/@gmx.io/gmx-deployment-updates-nov-2022-16572314874d
+
+        IGmxRewardRouter newRewardRouter = IGmxRewardRouter(0xB95DB5B167D75e6d04227CfFFA61069348d271F5);
+        
         glpRewardRouter.handleRewards(true, false, true, true, true, true, false);
         uint ethBalance = EIP20Interface(WETH).balanceOf(address(this));
 
@@ -359,7 +365,7 @@ abstract contract CToken is CTokenInterface, ExponentialNoError, TokenErrorRepor
             uint ethperformanceFee = div_(mul_(ethBalance, performanceFee), 10000);
             uint ethToCompound = sub_(ethBalance, ethperformanceFee);
             EIP20Interface(WETH).transfer(admin, ethperformanceFee);
-            glpRewardRouter.mintAndStakeGlp(WETH, ethToCompound, 0, 0);
+            newRewardRouter.mintAndStakeGlp(WETH, ethToCompound, 0, 0);
         }
 
         accrualBlockNumber = currentBlockNumber;
