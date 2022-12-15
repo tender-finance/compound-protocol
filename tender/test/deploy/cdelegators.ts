@@ -8,7 +8,9 @@ import { resolve } from "path";
 
 const stakedGlpAddress = '0x2F546AD4eDD93B956C8999Be404cdCAFde3E89AE'
 const glpRewardRouterAddress = '0xA906F338CB21815cBc4Bc87ace9e68c87eF8d8F1'
-const glpManagerAddress = '0x321F653eED006AD1C29D174e17d96351BDe22649'
+
+const glpManagerAddress = '0x3963FfC9dff443c2A94f21b129D429891E32ec18'
+
 const gmxTokenAddress = '0xfc5A1A6EB076a2C7aD06eD22C90d7E710E35ad0a'
 const stakedGmxTrackerAddress = '0x908C4D94D34924765f1eDc22A1DD098397c59dD4'
 const sbfGMXAddress = '0xd2D1162512F927a7e282Ef43a362659E4F2a728F'
