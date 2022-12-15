@@ -29,7 +29,6 @@ export async function main() {
     // Save to output
     deployments["delegate"]  = deployedCErc20Delegate.address
     writeFileSync(outputFilePath, JSON.stringify(deployments, null, 2));
-
 }
 
 main()
