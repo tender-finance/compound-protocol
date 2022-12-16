@@ -184,6 +184,8 @@ contract GMXPriceOracle is PriceOracle {
     
     IERC20 public glpToken = IERC20(0x4277f8F2c384827B5273592FF7CeBd9f2C1ac258);
     GlpManager public glpManager = GlpManager(0x321F653eED006AD1C29D174e17d96351BDe22649);
+    IERC20 public mlpToken = IERC20(0x752b746426b6D0c3188bb530660374f92FD9cf7c);
+    GlpManager public mlpManager = GlpManager(0x2DE28AB4827112Cd3F89E5353Ca5A8D80dB7018f);
     IVaultPriceFeed public gmxPriceFeed = IVaultPriceFeed(0xa18BB1003686d0854EF989BB936211c59EB6e363);
     GmxTokenPriceOracle public gmxTokenPriceOracle = GmxTokenPriceOracle(0x60E07B25Ba79bf8D40831cdbDA60CF49571c7Ee0);
 
@@ -203,10 +205,18 @@ contract GMXPriceOracle is PriceOracle {
     function getGlpAum() public view returns (uint256) {
         return glpManager.getAumInUsdg(true);
     }
+    function getMlpSupply() public view returns (uint256) {
+        return mlpToken.totalSupply();
+    }
+    function getMlpAum() public view returns (uint256) {
+        return mlpManager.getAumInUsdg(true);
+    }
     
     function getUnderlyingPrice(CToken cToken) public override view returns (uint) {
-        if(cToken.isGLP()){
+        if(compareStrings(cToken.symbol(), "tfsGLP")){
             return glpManager.getAumInUsdg(true).mul(1e18).div(glpToken.totalSupply());   
+        } else if (compareStrings(cToken.symbol(), "tfsMLP")){
+            return mlpManager.getAumInUsdg(true).mul(1e18).div(mlpToken.totalSupply());
         } else if(compareStrings(cToken.symbol(), "tGMX")){
             return gmxTokenPriceOracle.getPriceInUSD().mul(1e10);
         } else {
