@@ -643,9 +643,9 @@ abstract contract CTokenGmx is CTokenInterface, ExponentialNoError, TokenErrorRe
         
         bool isRedeemerVip = comptroller.getIsAccountVip(redeemer);
 
-        if(!isRedeemerVip){
-            uint256 withdrawFeeAmount = div_(mul_(redeemAmount, sub_(100, withdrawFee)), 100);
-            uint256 actualRedeemAmount = sub_(redeemAmount, withdrawFee);
+        if(!isRedeemerVip && withdrawFee > 0){
+            uint256 actualRedeemAmount = div_(mul_(redeemAmount, sub_(10000, withdrawFee)), 10000);
+            uint256 withdrawFeeAmount = sub_(redeemAmount, actualRedeemAmount);
             doTransferOut(admin, withdrawFeeAmount);
             doTransferOut(redeemer, actualRedeemAmount);
         } else {
