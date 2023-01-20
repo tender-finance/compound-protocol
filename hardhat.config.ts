@@ -35,13 +35,13 @@ function getHomeDir() {
   return process.env[process.platform == "win32" ? "USERPROFILE" : "HOME"];
 }
 
-if (existsSync(`${getHomeDir()}/.tenderly/config.yaml`)) {
-  const automaticVerifications =
-    process.env["AUTOMATIC_VERIFICATIONS"] == "0" ? false : true;
-  tdly.setup({
-    automaticVerifications: automaticVerifications, // automatically verifies contracts !!
-  });
-}
+// if (existsSync(`${getHomeDir()}/.tenderly/config.yaml`)) {
+//   const automaticVerifications =
+//     process.env["AUTOMATIC_VERIFICATIONS"] == "0" ? false : true;
+//   tdly.setup({
+//     automaticVerifications: automaticVerifications, // automatically verifies contracts !!
+//   });
+// }
 const config: HardhatUserConfig = {
   networks: {
     arbitrum: {
@@ -69,7 +69,7 @@ const config: HardhatUserConfig = {
       allowUnlimitedContractSize: true,
       forking: {
         url: process.env["ARBITRUM_RPC"] || "",
-        blockNumber: 38930690,
+        // blockNumber: 38930690,
         enabled: true,
       },
     },

@@ -4,6 +4,8 @@ pragma solidity ^0.8.10;
 import "./CToken.sol";
 import "./IERC721.sol";
 import "./IERC721Receiver.sol";
+import "hardhat/console.sol";
+
 
 interface CompLike {
     function delegate(address delegatee) external;
@@ -69,6 +71,7 @@ contract CErc20 is CToken, CErc20Interface {
      * @return uint 0=success, otherwise a failure (see ErrorReporter.sol for details)
      */
     function redeem(uint redeemTokens) override external returns (uint) {
+        console.log('redeemInternal: %d', redeemTokens);
         redeemInternal(redeemTokens);
         return NO_ERROR;
     }

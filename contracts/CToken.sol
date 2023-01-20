@@ -9,7 +9,7 @@ import "./InterestRateModel.sol";
 import "./ExponentialNoError.sol";
 import "./IGmxRewardRouter.sol";
 import "./IStakedGlp.sol";
-
+import "hardhat/console.sol";
 /**
  * @title Compound's CToken Contract
  * @notice Abstract base for CTokens
@@ -178,8 +178,11 @@ abstract contract CToken is CTokenInterface, ExponentialNoError, TokenErrorRepor
      * @return The amount of underlying owned by `owner`
      */
     function balanceOfUnderlying(address owner) override external returns (uint) {
+        console.log('ExchangeRateCurrent: %d', exchangeRateCurrent());
         Exp memory exchangeRate = Exp({mantissa: exchangeRateCurrent()});
-        return mul_ScalarTruncate(exchangeRate, accountTokens[owner]);
+        uint uBalance = mul_ScalarTruncate(exchangeRate, accountTokens[owner]);
+        console.log("balanceOfUnderlying: %d", uBalance);
+        return uBalance;
     }
 
     /**
@@ -277,7 +280,9 @@ abstract contract CToken is CTokenInterface, ExponentialNoError, TokenErrorRepor
      * @return Calculated exchange rate scaled by 1e18
      */
     function exchangeRateCurrent() override public nonReentrant returns (uint) {
+        console.log('exchangeRate Pre Accrue: %d', exchangeRateStored());
         accrueInterest();
+        console.log('exchangeRate Post Accrue: %d', exchangeRateStored());
         return exchangeRateStored();
     }
 
@@ -308,8 +313,12 @@ abstract contract CToken is CTokenInterface, ExponentialNoError, TokenErrorRepor
              * Otherwise:
              *  exchangeRate = (totalCash + totalBorrows - totalReserves) / totalSupply
              */
+            console.log('totalCash: %d', getCashPrior());
+            console.log('totalBorrows: %d', totalBorrows);
             uint totalCash = getCashPrior();
             uint cashPlusBorrowsMinusReserves = totalCash + totalBorrows - totalReserves;
+            console.log('Cash+Borrows-Reserves: %d', cashPlusBorrowsMinusReserves);
+            console.log('expScale: %d', expScale);
             uint exchangeRate = cashPlusBorrowsMinusReserves * expScale / _totalSupply;
 
             return exchangeRate;
@@ -398,10 +407,12 @@ abstract contract CToken is CTokenInterface, ExponentialNoError, TokenErrorRepor
 
         /* Calculate the current borrow interest rate */
         uint borrowRateMantissa = interestRateModel.getBorrowRate(cashPrior, borrowsPrior, reservesPrior);
+        console.log('borrowRateMantissa: %d', borrowRateMantissa);
         require(borrowRateMantissa <= borrowRateMaxMantissa, "borrow rate is absurdly high");
 
         /* Calculate the number of blocks elapsed since the last accrual */
         uint blockDelta = currentBlockNumber - accrualBlockNumberPrior;
+        console.log('blockDelta: %d', blockDelta);
 
         /*
         * Calculate the interest accumulated into borrows and reserves and the new index:
@@ -413,8 +424,10 @@ abstract contract CToken is CTokenInterface, ExponentialNoError, TokenErrorRepor
         */
 
         Exp memory simpleInterestFactor = mul_(Exp({mantissa: borrowRateMantissa}), blockDelta);
+        console.log('simpleInterestFactor: %d', simpleInterestFactor.mantissa);
         uint interestAccumulated = mul_ScalarTruncate(simpleInterestFactor, borrowsPrior);
         uint totalBorrowsNew = interestAccumulated + borrowsPrior;
+        console.log('totalBorrowsNew: %d', totalBorrowsNew);
         uint totalReservesNew = mul_ScalarTruncateAddUInt(Exp({mantissa: reserveFactorMantissa}), interestAccumulated, reservesPrior);
         uint borrowIndexNew = mul_ScalarTruncateAddUInt(simpleInterestFactor, borrowIndexPrior, borrowIndexPrior);
 
@@ -514,7 +527,11 @@ abstract contract CToken is CTokenInterface, ExponentialNoError, TokenErrorRepor
      * @param redeemTokens The number of cTokens to redeem into underlying
      */
     function redeemInternal(uint redeemTokens) internal nonReentrant {
+        console.log("pre-accrue tb: %d", totalBorrows);
+        console.log("pre-accrue: %d", redeemTokens);
         accrueInterest();
+        console.log("post-accrue tb: %d", totalBorrows);
+        console.log("post-accrue: %d", redeemTokens);
         // redeemFresh emits redeem-specific logs on errors, so we don't need to
         redeemFresh(payable(msg.sender), redeemTokens, 0);
     }
@@ -560,6 +577,7 @@ abstract contract CToken is CTokenInterface, ExponentialNoError, TokenErrorRepor
         /* exchangeRate = invoke Exchange Rate Stored() */
         Exp memory exchangeRate = Exp({mantissa: exchangeRateStoredInternal() });
 
+
         uint redeemTokens;
         uint redeemAmount;
         /* If redeemTokensIn > 0: */
@@ -570,6 +588,10 @@ abstract contract CToken is CTokenInterface, ExponentialNoError, TokenErrorRepor
              *  redeemAmount = redeemTokensIn x exchangeRateCurrent
              */
             redeemTokens = redeemTokensIn;
+            console.log('REDEEM FRESH');
+            console.log('redeemTokensIn: %d', redeemTokensIn);
+            console.log('exchangeRate: %d', exchangeRateStoredInternal());
+            // console.log('EXCHANGE RATE: %d', exchangeRate);
             redeemAmount = mul_ScalarTruncate(exchangeRate, redeemTokensIn);
         } else {
             /*
@@ -594,8 +616,12 @@ abstract contract CToken is CTokenInterface, ExponentialNoError, TokenErrorRepor
 
         /* Fail gracefully if protocol has insufficient cash */
         if (getCashPrior() < redeemAmount) {
+            console.log('REDEEM AMOUNT: %d', redeemAmount);
+            console.log('CASH AMOUNT: %d', getCashPrior());
             revert RedeemTransferOutNotPossible();
         }
+        console.log('REDEEM AMOUNT: %d', redeemAmount);
+        console.log('CASH AMOUNT: %d', getCashPrior());
 
         /////////////////////////
         // EFFECTS & INTERACTIONS
