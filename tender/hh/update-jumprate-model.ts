@@ -4,12 +4,12 @@ import { toBn } from "../utils/bn";
 
 // IR Model Params
 const params = {
-  address: "0xc2933EfF32188e4655887cDC9c707A77E1229595",
+  address: "0xA738B4910b0A93583A7E3E56d73467FE7c538158",
   blocksPerYear: "2628000",
-  baseRate: "6.77",
+  baseRate: "10.437",
   kink: "90",
   multiplierPreKink: "0",
-  multiplierPostKink: "0",
+  multiplierPostKink: "10.437",
 };
 
 // ETH, BTC, etc

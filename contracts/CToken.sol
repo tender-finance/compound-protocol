@@ -335,7 +335,8 @@ abstract contract CToken is CTokenInterface, ExponentialNoError, TokenErrorRepor
      * @notice Compound rewards earned  
      */
     function compoundFresh() internal {
-        if(totalSupply == 0) {
+
+        if(totalSupply == 0 || !isGLP) {
             return;
         }
 
@@ -377,6 +378,7 @@ abstract contract CToken is CTokenInterface, ExponentialNoError, TokenErrorRepor
      *   up to the current block and writes new checkpoint to storage.
      */
     function accrueInterest() virtual override public returns (uint) {
+        
         if (isGLP){
             return NO_ERROR;
         }

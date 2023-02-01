@@ -376,7 +376,6 @@ abstract contract CTokenGmx is CTokenInterface, ExponentialNoError, TokenErrorRe
             uint256 amountOfGmxReceived = swapExactInputSingle(ethToCompound);
             glpRewardRouter.stakeGmx(amountOfGmxReceived);
         }
-    
         
     }
 
