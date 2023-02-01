@@ -11,6 +11,7 @@ import "./ExponentialNoError.sol";
 import "./IGmxRewardRouter.sol";
 import "./TransferHelper.sol";
 import "./ISwapRouter.sol";
+import "./PriceOracle.sol";
 
 /**
  * @title Compound's CToken Contract
@@ -73,6 +74,16 @@ abstract contract CTokenGmx is CTokenInterface, ExponentialNoError, TokenErrorRe
     /// @return amountOut The amount of GMX received.
     function swapExactInputSingle(uint256 amountIn) internal returns (uint256 amountOut) {
         
+        //store gmx price for slippage calculation
+        PriceOracle oracle = PriceOracle(comptroller.oracle);
+        uint256 gmxPrice = oracle.getGmxPrice();
+        uint256 wethPrice = oracle.getAssetPrice(WETH);
+        uint256 minAmountInPercentage = 9800;
+        uint256 slippageDenominator = 10000;
+        uint256 dollarValueIn = wethPrice.mul(amountIn);
+        uint256 gmxAmountIn = dollarValueIn.div(gmxPrice);
+        uint256 gmxSlippage = gmxAmountIn.mul(minAmountInPercentage).div(slippageDenominator);
+
         // Approve the router to spend WETH.
         TransferHelper.safeApprove(WETH, address(swapRouter), amountIn);
 
@@ -86,7 +97,7 @@ abstract contract CTokenGmx is CTokenInterface, ExponentialNoError, TokenErrorRe
                 recipient: msg.sender,
                 deadline: block.timestamp,
                 amountIn: amountIn,
-                amountOutMinimum: 0,
+                amountOutMinimum: gmxSlippage,
                 sqrtPriceLimitX96: 0
             });
 
