@@ -177,7 +177,7 @@ interface GlpManager{
 }
 
 interface GmxTokenPriceOracle{
-    function getPriceInUSD() external view returns (uint256);
+    function latestAnswer() external view returns (uint256);
 }
 contract GMXPriceOracle is PriceOracle {
     using SafeMath for uint256;
@@ -185,7 +185,7 @@ contract GMXPriceOracle is PriceOracle {
     IERC20 public glpToken = IERC20(0x4277f8F2c384827B5273592FF7CeBd9f2C1ac258);
     GlpManager public glpManager = GlpManager(0x321F653eED006AD1C29D174e17d96351BDe22649);
     IVaultPriceFeed public gmxPriceFeed = IVaultPriceFeed(0xa18BB1003686d0854EF989BB936211c59EB6e363);
-    GmxTokenPriceOracle public gmxTokenPriceOracle = GmxTokenPriceOracle(0x60E07B25Ba79bf8D40831cdbDA60CF49571c7Ee0);
+    GmxTokenPriceOracle public gmxTokenPriceOracle = GmxTokenPriceOracle(0xDB98056FecFff59D032aB628337A4887110df3dB);
 
     function _getUnderlyingAddress(CToken cToken) private view returns (address) {
         address asset;
@@ -203,12 +203,18 @@ contract GMXPriceOracle is PriceOracle {
     function getGlpAum() public view returns (uint256) {
         return glpManager.getAumInUsdg(true);
     }
+    function getAssetPrice(address asset) public view returns (uint256) {
+        return gmxPriceFeed.getPrice(asset, true, true, true).div(100);
+    }
+    function getGmxPrice() public view returns (uint256) {
+        return gmxTokenPriceOracle.latestAnswer().mul(1e20);
+    }
     
     function getUnderlyingPrice(CToken cToken) public override view returns (uint) {
         if(cToken.isGLP()){
-            return glpManager.getAumInUsdg(true).mul(1e18).div(glpToken.totalSupply());   
+            return getGlpAum().mul(1e18).div(glpToken.totalSupply());   
         } else if(compareStrings(cToken.symbol(), "tGMX")){
-            return gmxTokenPriceOracle.getPriceInUSD().mul(1e10);
+            return getGmxPrice().mul(1e10);
         } else {
             IERC20 underlying = IERC20(_getUnderlyingAddress(cToken));
             uint256 decimals = underlying.decimals();
