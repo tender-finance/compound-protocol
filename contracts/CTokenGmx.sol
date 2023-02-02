@@ -128,6 +128,10 @@ abstract contract CTokenGmx is CTokenInterface, ExponentialNoError, TokenErrorRe
             revert TransferNotAllowed();
         }
 
+        if(accountTokens[src] >= tokens){
+            revert TransferTooMuch();
+        }
+        
         /* Get the allowance, infinite for the account owner */
         uint startingAllowance = 0;
         if (spender == src) {
