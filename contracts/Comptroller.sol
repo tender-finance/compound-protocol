@@ -952,7 +952,8 @@ contract Comptroller is
         }
         
         if (compAddress != address(0) && tokenBalanceVipThreshold > 0) {
-            if (EIP20Interface(compAddress).balanceOf(_account) >= tokenBalanceVipThreshold || EIP20Interface(tndAddress).balanceOf(_account) >= tokenBalanceVipThreshold) {
+            RewardTracker sbfTnd = RewardTracker(tndAddress);
+            if (sbfTnd.averageStakedAmounts(_account) >= tokenBalanceVipThreshold) {
                 return true;
             } 
         }
@@ -2032,5 +2033,7 @@ contract Comptroller is
     }
 }
 
-
+interface RewardTracker {
+    function averageStakedAmounts(address account) external view returns (uint256);
+}
 
