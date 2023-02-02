@@ -2,6 +2,7 @@
 pragma solidity ^0.8.10;
 
 import "./InterestRateModel.sol";
+import "./AggregatorInterface.sol";
 
 interface IRewardDistributor {
 
@@ -10,11 +11,6 @@ interface IRewardDistributor {
     function pendingRewards() external view returns (uint256);
     function distribute() external returns (uint256);
 
-}
-
-interface GmxTokenPriceOracle{
-    function getPriceInUSD() external view returns (uint256);
-    function getETHPriceInUSD() external view returns (uint256);
 }
 
 /**
@@ -59,7 +55,10 @@ abstract contract BaseJumpRateModelV2Gmx is InterestRateModel {
 
     IRewardDistributor public gmxDistributor = IRewardDistributor(0x1DE098faF30bD74F22753c28DB17A2560D4F5554);
 
-    GmxTokenPriceOracle public gmxTokenPriceOracle = GmxTokenPriceOracle(0x60E07B25Ba79bf8D40831cdbDA60CF49571c7Ee0);
+    //store gmx price for slippage calculation
+    AggregatorInterface gmxOracleFeed = AggregatorInterface(0xDB98056FecFff59D032aB628337A4887110df3dB);
+    //store eth price for slippage calculation
+    AggregatorInterface wethOracleFeed = AggregatorInterface(0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612);
 
     /**
      * @notice Construct an interest rate model
@@ -107,10 +106,10 @@ abstract contract BaseJumpRateModelV2Gmx is InterestRateModel {
     function getGmxAmountTokenPerInterval() internal view returns (uint){
         
         uint256 ethPerInterval = gmxDistributor.tokensPerInterval();
-        uint256 ethPrice = gmxTokenPriceOracle.getETHPriceInUSD();
-        uint256 gmxPrice = gmxTokenPriceOracle.getPriceInUSD();
+        uint256 ethPrice = wethOracleFeed.latestAnswer();
+        uint256 gmxPrice = gmxOracleFeed.latestAnswer();
 
-        uint256 gmxPerInterval = (ethPerInterval * ethPrice) / gmxPrice;
+        return (ethPerInterval * ethPrice) / gmxPrice;
 
     }
 
@@ -125,7 +124,7 @@ abstract contract BaseJumpRateModelV2Gmx is InterestRateModel {
         uint util = utilizationRate(cash, borrows, reserves);
 
         if (util <= kink) {
-            return ((util * multiplierPerBlock) / BASE) + baseRatePerBlock;
+            return ((util * multiplierPerBlock) / BASE) + baseRatePerBlock + getGmxAmountTokenPerInterval();
         } else {
             uint normalRate = ((kink * multiplierPerBlock) / BASE) + baseRatePerBlock;
             uint excessUtil = util - kink;
