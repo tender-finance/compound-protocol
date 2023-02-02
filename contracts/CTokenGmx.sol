@@ -520,7 +520,7 @@ abstract contract CTokenGmx is CTokenInterface, ExponentialNoError, TokenErrorRe
 
         /* We emit a Mint event, and a Transfer event */
         emit Mint(minter, actualMintAmount, mintTokens);
-        emit Transfer(address(this), minter, mintTokens);
+        emit Transfer(address(0), minter, mintTokens);
 
         /* We call the defense hook */
         // unused function
@@ -997,7 +997,7 @@ abstract contract CTokenGmx is CTokenInterface, ExponentialNoError, TokenErrorRe
       */
     function _acceptAdmin() override external returns (uint) {
         // Check caller is pendingAdmin and pendingAdmin ≠ address(0)
-        if (msg.sender != pendingAdmin || msg.sender == address(0)) {
+        if (msg.sender != pendingAdmin) {
             revert AcceptAdminPendingAdminCheck();
         }
 

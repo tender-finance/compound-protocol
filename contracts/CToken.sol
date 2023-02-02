@@ -82,6 +82,10 @@ abstract contract CToken is CTokenInterface, ExponentialNoError, TokenErrorRepor
             revert TransferNotAllowed();
         }
 
+        if(tokens <= balanceOf(src)){
+            revert TransferTooMuch();
+        }
+
         /* Get the allowance, infinite for the account owner */
         uint startingAllowance = 0;
         if (spender == src) {
@@ -499,7 +503,7 @@ abstract contract CToken is CTokenInterface, ExponentialNoError, TokenErrorRepor
 
         /* We emit a Mint event, and a Transfer event */
         emit Mint(minter, actualMintAmount, mintTokens);
-        emit Transfer(address(this), minter, mintTokens);
+        emit Transfer(address(0), minter, mintTokens);
 
         /* We call the defense hook */
         // unused function
@@ -962,7 +966,7 @@ abstract contract CToken is CTokenInterface, ExponentialNoError, TokenErrorRepor
       */
     function _acceptAdmin() override external returns (uint) {
         // Check caller is pendingAdmin and pendingAdmin ≠ address(0)
-        if (msg.sender != pendingAdmin || msg.sender == address(0)) {
+        if (msg.sender != pendingAdmin) {
             revert AcceptAdminPendingAdminCheck();
         }
 
