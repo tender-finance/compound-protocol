@@ -82,7 +82,7 @@ abstract contract CToken is CTokenInterface, ExponentialNoError, TokenErrorRepor
             revert TransferNotAllowed();
         }
 
-        if(tokens <= balanceOf(src)){
+        if(accountTokens[src] >= tokens){
             revert TransferTooMuch();
         }
 
