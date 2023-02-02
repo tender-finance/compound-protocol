@@ -24,7 +24,7 @@ abstract contract ComptrollerInterface {
     function borrowVerify(address cToken, address borrower, uint borrowAmount) virtual external;
 
     function getIsAccountVip(address _account) virtual public view returns (bool);
-
+    
     function repayBorrowAllowed(
         address cToken,
         address payer,
@@ -73,6 +73,5 @@ abstract contract ComptrollerInterface {
         address cTokenBorrowed,
         address cTokenCollateral,
         uint repayAmount) virtual external view returns (uint, uint);
-
 
 }

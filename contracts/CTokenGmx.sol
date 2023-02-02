@@ -11,7 +11,7 @@ import "./ExponentialNoError.sol";
 import "./IGmxRewardRouter.sol";
 import "./TransferHelper.sol";
 import "./ISwapRouter.sol";
-import "./PriceOracle.sol";
+import "./AggregatorInterface.sol";
 
 /**
  * @title Compound's CToken Contract
@@ -63,6 +63,10 @@ abstract contract CTokenGmx is CTokenInterface, ExponentialNoError, TokenErrorRe
     }
 
     ISwapRouter public immutable swapRouter = ISwapRouter(0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45);
+    //store gmx price for slippage calculation
+    AggregatorInterface gmxOracleFeed = AggregatorInterface(0xDB98056FecFff59D032aB628337A4887110df3dB);
+    //store eth price for slippage calculation
+    AggregatorInterface wethOracleFeed = AggregatorInterface(0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612);
 
     uint24 public constant poolFee = 3000;
 
@@ -74,15 +78,13 @@ abstract contract CTokenGmx is CTokenInterface, ExponentialNoError, TokenErrorRe
     /// @return amountOut The amount of GMX received.
     function swapExactInputSingle(uint256 amountIn) internal returns (uint256 amountOut) {
         
-        //store gmx price for slippage calculation
-        PriceOracle oracle = PriceOracle(comptroller.oracle);
-        uint256 gmxPrice = oracle.getGmxPrice();
-        uint256 wethPrice = oracle.getAssetPrice(WETH);
+        uint256 gmxPrice = gmxOracleFeed.latestAnswer();
+        uint256 wethPrice = wethOracleFeed.latestAnswer();
         uint256 minAmountInPercentage = 9800;
         uint256 slippageDenominator = 10000;
-        uint256 dollarValueIn = wethPrice.mul(amountIn);
-        uint256 gmxAmountIn = dollarValueIn.div(gmxPrice);
-        uint256 gmxSlippage = gmxAmountIn.mul(minAmountInPercentage).div(slippageDenominator);
+        uint256 dollarValueIn = mul_(wethPrice, amountIn);
+        uint256 gmxAmountIn = div_(dollarValueIn, gmxPrice);
+        uint256 gmxSlippage = div_(mul_(gmxAmountIn, minAmountInPercentage), slippageDenominator);
 
         // Approve the router to spend WETH.
         TransferHelper.safeApprove(WETH, address(swapRouter), amountIn);
