@@ -44,9 +44,10 @@ contract CEther is CToken {
      * @notice Sender supplies assets into the market and receives cTokens in exchange
      * @dev Reverts upon any failure
      */
-    function mint() external payable {
+    function mint() external payable returns (uint) {
         mintInternal(msg.value);
         comptroller.addToMarketExternal(address(this), msg.sender);
+        return NO_ERROR;
     }
 
     /**
@@ -85,8 +86,9 @@ contract CEther is CToken {
      * @notice Sender repays their own borrow
      * @dev Reverts upon any failure
      */
-    function repayBorrow() external payable {
+    function repayBorrow() external payable returns (uint) {
         repayBorrowInternal(msg.value);
+        return NO_ERROR;
     }
 
     /**
@@ -94,8 +96,9 @@ contract CEther is CToken {
      * @dev Reverts upon any failure
      * @param borrower the account with the debt being payed off
      */
-    function repayBorrowBehalf(address borrower) external payable {
+    function repayBorrowBehalf(address borrower) external payable returns (uint) {
         repayBorrowBehalfInternal(borrower, msg.value);
+        return NO_ERROR;
     }
 
     /**
@@ -105,8 +108,9 @@ contract CEther is CToken {
      * @param borrower The borrower of this cToken to be liquidated
      * @param cTokenCollateral The market in which to seize collateral from the borrower
      */
-    function liquidateBorrow(address borrower, CToken cTokenCollateral) external payable {
+    function liquidateBorrow(address borrower, CToken cTokenCollateral) external payable returns (uint) {
         liquidateBorrowInternal(borrower, msg.value, cTokenCollateral);
+        return NO_ERROR;
     }
 
     /**
