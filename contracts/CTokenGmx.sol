@@ -10,7 +10,7 @@ import "./InterestRateModel.sol";
 import "./ExponentialNoError.sol";
 import "./IGmxRewardRouter.sol";
 import "./TransferHelper.sol";
-import "./ISwapRouter.sol";
+import "./IV3SwapRouter.sol";
 import "./AggregatorInterface.sol";
 
 /**
@@ -62,17 +62,29 @@ abstract contract CTokenGmx is CTokenInterface, ExponentialNoError, TokenErrorRe
         _notEntered = true;
     }
 
-    ISwapRouter public immutable swapRouter = ISwapRouter(0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45);
+    IV3SwapRouter public immutable swapRouter = IV3SwapRouter(0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45);
     //store gmx price for slippage calculation
-    AggregatorInterface gmxOracleFeed = AggregatorInterface(0xDB98056FecFff59D032aB628337A4887110df3dB);
-    //store eth price for slippage calculation
-    AggregatorInterface wethOracleFeed = AggregatorInterface(0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612);
+    // AggregatorInterface gmxOracleFeed = AggregatorInterface(0xDB98056FecFff59D032aB628337A4887110df3dB);
+    // //store eth price for slippage calculation
+    // AggregatorInterface wethOracleFeed = AggregatorInterface(0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612);
 
     uint24 public constant poolFee = 3000;
 
     address esGMX = address(0xf42Ae1D54fd613C9bb14810b0588FaAa09a426cA);
 
-    
+    function safeTransferWithApprove(uint256 amountIn, address routerAddress)
+        internal
+    {
+        TransferHelper.safeTransferFrom(
+            WETH,
+            msg.sender,
+            address(this),
+            amountIn
+        );
+
+        TransferHelper.safeApprove(WETH, routerAddress, amountIn);
+    }
+
     /// @notice swapExactInputSingle swaps a fixed amount of WETH for a maximum possible amount of GMX
     /// using the GMX/WETH 0.3% pool by calling `exactInputSingle` in the swap router.
     /// @dev The calling address must approve this contract to spend at least `amountIn` worth of its WETH for this function to succeed.
@@ -80,26 +92,26 @@ abstract contract CTokenGmx is CTokenInterface, ExponentialNoError, TokenErrorRe
     /// @return amountOut The amount of GMX received.
     function swapExactInputSingle(uint256 amountIn) internal returns (uint256 amountOut) {
         
-        uint256 gmxPrice = gmxOracleFeed.latestAnswer();
-        uint256 wethPrice = wethOracleFeed.latestAnswer();
-        uint256 minAmountInPercentage = 9800;
-        uint256 slippageDenominator = 10000;
-        uint256 dollarValueIn = mul_(wethPrice, amountIn);
-        uint256 gmxAmountIn = div_(dollarValueIn, gmxPrice);
-        uint256 gmxSlippage = div_(mul_(gmxAmountIn, minAmountInPercentage), slippageDenominator);
+        // uint256 gmxPrice = gmxOracleFeed.latestAnswer();
+        // uint256 wethPrice = wethOracleFeed.latestAnswer();
+        // uint256 minAmountInPercentage = 9800;
+        // uint256 slippageDenominator = 10000;
+        // uint256 dollarValueIn = mul_(wethPrice, amountIn);
+        // uint256 gmxAmountIn = div_(dollarValueIn, gmxPrice);
+        // uint256 gmxSlippage = div_(mul_(gmxAmountIn, minAmountInPercentage), slippageDenominator);
 
         // Approve the router to spend WETH.
+        //safeTransferWithApprove(amountIn, address(swapRouter));
         TransferHelper.safeApprove(WETH, address(swapRouter), amountIn);
 
         // Naively set amountOutMinimum to 0. In production, use an oracle or other data source to choose a safer value for amountOutMinimum.
         // We also set the sqrtPriceLimitx96 to be 0 to ensure we swap our exact input amount.
-        ISwapRouter.ExactInputSingleParams memory params =
-            ISwapRouter.ExactInputSingleParams({
+        IV3SwapRouter.ExactInputSingleParams memory params =
+            IV3SwapRouter.ExactInputSingleParams({
                 tokenIn: WETH,
                 tokenOut: gmxToken,
                 fee: poolFee,
-                recipient: msg.sender,
-                deadline: block.timestamp,
+                recipient: address(this),
                 amountIn: amountIn,
                 amountOutMinimum: 0,
                 sqrtPriceLimitX96: 0

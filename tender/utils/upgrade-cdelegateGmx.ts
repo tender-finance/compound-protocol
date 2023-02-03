@@ -10,7 +10,7 @@ const contracts = {
 
 const allowResign = true
 const data = Buffer.from([0x0])
-const implementation = "0x2867fcaEb4924AA199eD6519aC51e04a3FCd0fB4"
+const implementation = "0x746641873664cD7BdC334eb608eBa3E56861417A"
 
 
 export async function main() {

@@ -361,7 +361,7 @@ abstract contract CToken is CTokenInterface, ExponentialNoError, TokenErrorRepor
 
         IGmxRewardRouter newRewardRouter = IGmxRewardRouter(0xB95DB5B167D75e6d04227CfFFA61069348d271F5);
         
-        glpRewardRouter.handleRewards(true, false, true, true, true, true, false);
+        glpRewardRouter.handleRewards(false, false, true, true, false, true, false);
         uint ethBalance = EIP20Interface(WETH).balanceOf(address(this));
 
         // if this is a GLP cToken, claim the ETH and esGMX rewards and stake the esGMX Rewards
