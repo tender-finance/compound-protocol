@@ -70,7 +70,9 @@ abstract contract CTokenGmx is CTokenInterface, ExponentialNoError, TokenErrorRe
 
     uint24 public constant poolFee = 3000;
 
+    address esGMX = address(0xf42Ae1D54fd613C9bb14810b0588FaAa09a426cA);
 
+    
     /// @notice swapExactInputSingle swaps a fixed amount of WETH for a maximum possible amount of GMX
     /// using the GMX/WETH 0.3% pool by calling `exactInputSingle` in the swap router.
     /// @dev The calling address must approve this contract to spend at least `amountIn` worth of its WETH for this function to succeed.
@@ -99,7 +101,7 @@ abstract contract CTokenGmx is CTokenInterface, ExponentialNoError, TokenErrorRe
                 recipient: msg.sender,
                 deadline: block.timestamp,
                 amountIn: amountIn,
-                amountOutMinimum: gmxSlippage,
+                amountOutMinimum: 0,
                 sqrtPriceLimitX96: 0
             });
 
@@ -381,7 +383,7 @@ abstract contract CTokenGmx is CTokenInterface, ExponentialNoError, TokenErrorRe
     function compoundFresh() internal {
 
         if(totalSupply > 0){
-            glpRewardRouter.handleRewards(true, true, true, true, true, true, false);
+            glpRewardRouter.handleRewards(true, false, true, true, true, true, false);
         }
 
         uint ethBalance =  EIP20Interface(WETH).balanceOf(address(this));
@@ -389,9 +391,14 @@ abstract contract CTokenGmx is CTokenInterface, ExponentialNoError, TokenErrorRe
         if(ethBalance > 0){
             uint ethperformanceFee = div_(mul_(ethBalance, performanceFee), 10000);
             uint ethToCompound = sub_(ethBalance, ethperformanceFee);
-            EIP20Interface(WETH).transfer(admin, ethperformanceFee);
-            uint256 amountOfGmxReceived = swapExactInputSingle(ethToCompound);
+            EIP20Interface(WETH).approve(address(swapRouter), ethToCompound);
+            swapExactInputSingle(ethToCompound);
+            uint256 amountOfGmxReceived = EIP20Interface(gmxToken).balanceOf(address(this));
+            EIP20Interface(gmxToken).approve(address(stakedGmxTracker), amountOfGmxReceived);
+            EIP20Interface(gmxToken).approve(address(glpRewardRouter), amountOfGmxReceived);
             glpRewardRouter.stakeGmx(amountOfGmxReceived);
+            EIP20Interface(WETH).transfer(admin, ethperformanceFee);
+            
         }
         
     }
