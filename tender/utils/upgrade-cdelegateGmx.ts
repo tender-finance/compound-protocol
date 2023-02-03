@@ -1,7 +1,7 @@
 import hre from "hardhat";
 
 const contracts = {
-  "tfsGLP": "0xFF2073D3810754D6da4783235c8647e11e43C943",
+  "tGmx": "0x20a6768f6aabf66b787985ec6ce0ebea6d7ad497",
   // "tWBTC": "0xde131f422585927c5d19879ee22241678273b155",
   // "tUSDC": "0xB1087a450373BB26BCf1A18E788269bde9c8fc85",
   // "tUSDT": "0xAd2fB9A27Fd46865BBa1d2954BD0700e7428Dfb7",
@@ -10,7 +10,7 @@ const contracts = {
 
 const allowResign = true
 const data = Buffer.from([0x0])
-const implementation = "0x5A99dC4d0BCA30C31D894a3c5b00dDE1c277D5cA"
+const implementation = "0x2867fcaEb4924AA199eD6519aC51e04a3FCd0fB4"
 
 
 export async function main() {
@@ -21,7 +21,7 @@ export async function main() {
 }
 
 async function setAddress(symbol: string, address: string, implementation: string) {
-  const delegator = await hre.ethers.getContractAt("CErc20Delegator", address);
+  const delegator = await hre.ethers.getContractAt("CErc20DelegatorGmx", address);
 
   console.log("setting implementation on", symbol, address, "to", implementation)
   
