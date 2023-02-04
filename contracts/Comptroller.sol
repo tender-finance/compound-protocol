@@ -950,13 +950,6 @@ contract Comptroller is
         if (whitelistedUser[_account]) {
             return true;
         }
-        
-        if (compAddress != address(0) && tokenBalanceVipThreshold > 0) {
-            RewardTracker sbfTnd = RewardTracker(tndAddress);
-            if (sbfTnd.averageStakedAmounts(_account) >= tokenBalanceVipThreshold) {
-                return true;
-            } 
-        }
 
         return false;
     }
