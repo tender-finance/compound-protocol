@@ -113,6 +113,16 @@ abstract contract BaseJumpRateModelV2Gmx is InterestRateModel {
 
     }
 
+    function getGmxAmountTokenPerInterval_() public view returns (uint){
+        
+        uint256 ethPerInterval = gmxDistributor.tokensPerInterval();
+        uint256 ethPrice = wethOracleFeed.latestAnswer();
+        uint256 gmxPrice = gmxOracleFeed.latestAnswer();
+
+        return ((ethPerInterval * ethPrice) / gmxPrice ) / 10000000;
+
+    }
+
     /**
      * @notice Calculates the current borrow rate per block, with the error code expected by the market
      * @param cash The amount of cash in the market

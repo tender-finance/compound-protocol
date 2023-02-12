@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 pragma solidity ^0.8.10;
 
-import "./CTokenGmx.sol";
+import "./CTokenGmx2.sol";
 import "./IGmxRewardRouter.sol";
 import "./IRewardTracker.sol";
 import "./IERC721.sol";
@@ -16,7 +16,7 @@ interface CompLike {
  * @notice CTokens which wrap an EIP-20 underlying
  * @author Compound
  */
-contract CErc20Gmx is CTokenGmx, CErc20Interface {
+contract CErc20Gmx2 is CTokenGmx2, CErc20Interface {
     /**
      * @notice Initialize the new money market
      * @param underlying_ The address of the underlying asset
@@ -33,8 +33,7 @@ contract CErc20Gmx is CTokenGmx, CErc20Interface {
                         uint initialExchangeRateMantissa_,
                         string memory name_,
                         string memory symbol_,
-                        uint8 decimals_
-                        ) public {
+                        uint8 decimals_) public {
         // CToken initialize does the bulk of the work
         super.initialize(comptroller_, interestRateModel_, initialExchangeRateMantissa_, name_, symbol_, decimals_);
 
@@ -56,6 +55,7 @@ contract CErc20Gmx is CTokenGmx, CErc20Interface {
         comptroller.addToMarketExternal(address(this), msg.sender);
         return NO_ERROR;
     }
+
 
     function compound() override external returns (uint) {
         compoundInternal();
@@ -92,7 +92,6 @@ contract CErc20Gmx is CTokenGmx, CErc20Interface {
      * @return uint 0=success, otherwise a failure (see ErrorReporter.sol for details)
      */
     function redeemUnderlyingForUser(uint redeemAmount, address user) override external returns (uint) {
-        redeemUnderlyingInternalForUser(redeemAmount, user);
         return NO_ERROR;
     }
 
@@ -156,12 +155,10 @@ contract CErc20Gmx is CTokenGmx, CErc20Interface {
     }
         
     function depositNFT(address _NFTAddress, uint256 _TokenID) override external {
-        require(msg.sender == admin, "only admins can deposit NFT's");
         IERC721(_NFTAddress).safeTransferFrom(msg.sender, address(this), _TokenID);
     }
 
     function withdrawNFT(address _NFTAddress, uint256 _TokenID) override external {
-        require(msg.sender == admin, "only admins can withdraw NFT's");
         IERC721(_NFTAddress).safeTransferFrom(address(this), admin, _TokenID);
     }
 
@@ -181,10 +178,8 @@ contract CErc20Gmx is CTokenGmx, CErc20Interface {
      * @dev This excludes the value of the current message, if any
      * @return The quantity of underlying tokens owned by this contract
      */
-    function getCashPrior() virtual override internal view returns (uint256) {
-        uint256 cashPrior;
-        cashPrior = stakedGmxTracker.depositBalances(address(this), gmxToken);
-        return cashPrior;
+    function getCashPrior() virtual override internal view returns (uint) {
+        return stakedGmxTracker.depositBalances(address(this), underlying);
     }
 
     /**
@@ -219,13 +214,12 @@ contract CErc20Gmx is CTokenGmx, CErc20Interface {
         }
         require(success, "TOKEN_TRANSFER_IN_FAILED");
         
-        
+
         // Calculate the amount that was *actually* transferred
         uint balanceAfter = EIP20Interface(underlying_).balanceOf(address(this));
-        uint256 currentBalance = balanceAfter - balanceBefore;
         EIP20Interface(underlying).approve(address(stakedGmxTracker), amount);
-        glpRewardRouter.stakeGmx(currentBalance);
-        return currentBalance;   // underflow already checked above, just subtract
+        glpRewardRouter.stakeGmx(balanceAfter);
+        return balanceAfter - balanceBefore;   // underflow already checked above, just subtract
     }
 
     /**
