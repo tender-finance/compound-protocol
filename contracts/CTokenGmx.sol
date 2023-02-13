@@ -337,8 +337,6 @@ abstract contract CTokenGmx is CTokenInterface, ExponentialNoError, TokenErrorRe
 
     uint24 public constant poolFee = 3000;
 
-    address esGMX = address(0xf42Ae1D54fd613C9bb14810b0588FaAa09a426cA);
-
     function safeTransferWithApprove(uint256 amountIn, address routerAddress)
         internal
     {
