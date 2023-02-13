@@ -1,6 +1,7 @@
+import '@nomiclabs/hardhat-ethers';
 import { Wallet, Contract, BigNumber } from "ethers";
 import { formatEther, formatUnits } from "ethers/lib/utils";
-import * as ethers from "ethers";
+import hre, {ethers} from "hardhat";
 import {
   JsonRpcSigner,
   JsonRpcProvider,

@@ -7,18 +7,21 @@ import { Wallet, Contract, BigNumber } from "ethers";
 import { formatEther, formatUnits } from "ethers/lib/utils";
 import { readFileSync } from "fs";
 import { join, resolve } from "path";
-import * as hre from "hardhat";
 import * as fs from "fs";
 import * as dotenv from "dotenv";
-dotenv.config();
-import * as ethers from "ethers";
+import '@nomiclabs/hardhat-ethers';
+import hre, { ethers } from "hardhat";
 import axios from "axios";
 
 const hreProvider = hre.network.provider;
 const accounts = {};
 // eslint disable-next-line
 
-const arbiscanKey = process.env.ARBISCAN_KEY;
+import {
+  ARBISCAN_KEY,
+  ARBITRUM_RPC,
+} from "../../../.env.json";
+const arbiscanKey = ARBISCAN_KEY;
 const arbiscanUrl =
   "https://api.arbiscan.io/api?module=contract&action=getabi&apikey=" +
   arbiscanKey +
@@ -111,5 +114,12 @@ export const resetNetwork = async () => {
         },
       },
     ],
+  });
+};
+export const fundWithEth = async (receiver) => {
+  const [ethWallet] = await ethers.getSigners();
+  await ethWallet.sendTransaction({
+    to: receiver,
+    value: ethers.utils.parseEther("1.0"),
   });
 };

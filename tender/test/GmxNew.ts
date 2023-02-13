@@ -21,8 +21,8 @@ const { tGMX, Unitroller } = deployments;
 const irModelAddress = deployments.IRModels.JumpRateModelV2
 
 const abis = {
-  delegator: "CErc20DelegatorGmx2",
-  delegate: "CErc20DelegateGmx2",
+  delegator: "CErc20DelegatorGmx",
+  delegate: "CErc20DelegateGmx",
 }
 
 import gmxAbi from '../utils/abis/GmxAbi.json'
