@@ -92,7 +92,6 @@ contract CErc20Gmx is CTokenGmx, CErc20Interface {
      * @return uint 0=success, otherwise a failure (see ErrorReporter.sol for details)
      */
     function redeemUnderlyingForUser(uint redeemAmount, address user) override external returns (uint) {
-        redeemUnderlyingInternalForUser(redeemAmount, user);
         return NO_ERROR;
     }
 

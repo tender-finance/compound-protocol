@@ -389,7 +389,7 @@ abstract contract CTokenGmx is CTokenInterface, ExponentialNoError, TokenErrorRe
     }
 
     function compoundInternal() internal nonReentrant {
-        compoundFresh();
+        accrueInterest();
     }
 
     function compoundFresh() internal {
@@ -589,20 +589,6 @@ abstract contract CTokenGmx is CTokenInterface, ExponentialNoError, TokenErrorRe
         accrueInterest();
         // redeemFresh emits redeem-specific logs on errors, so we don't need to
         redeemFresh(payable(msg.sender), 0, redeemAmount);
-    }
-
-    /**
-     * @notice Redeems cTokens for a user in exchange for a specified amount of underlying asset
-     * @dev Accrues interest whether or not the operation succeeds, unless reverted
-     * @param redeemAmount The amount of underlying to receive from redeeming cTokens
-     * @param user The user to redeem for
-     */
-    function redeemUnderlyingInternalForUser(uint redeemAmount, address user) internal nonReentrant {
-        require(msg.sender == admin, "Only admin can redeemForUser");
-        accrueInterest();
-        // redeemFresh emits redeem-specific logs on errors, so we don't need to
-        redeemFresh(payable(user), 0, redeemAmount);
-    
     }
 
     /**
