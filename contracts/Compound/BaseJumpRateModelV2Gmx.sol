@@ -2,7 +2,7 @@
 pragma solidity ^0.8.10;
 
 import "./InterestRateModel.sol";
-import "./AggregatorInterface.sol";
+import "./../lib/interface/AggregatorInterface.sol";
 
 interface IRewardDistributor {
 
