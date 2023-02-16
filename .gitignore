@@ -6,6 +6,7 @@ node_modules
 .env
 .certora*
 certora_*
+.env.json
 
 cache/
 coverage/

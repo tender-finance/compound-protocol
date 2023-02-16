@@ -2,46 +2,23 @@ import "@typechain/hardhat";
 import "@nomiclabs/hardhat-waffle";
 import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-ethers";
-import { existsSync } from "fs";
-
-// import "@openzeppelin/hardhat-upgrades";
-// import "hardhat-contract-sizer";
-
 import { HardhatUserConfig } from "hardhat/config";
 
-import * as dotenv from "dotenv";
+import {
+  ARBITRUM_RPC,
+  ETHERSCAN_API_KEY,
+  PRIVATE_KEY,
+} from './.env.json'
 
-import * as tdly from "@tenderly/hardhat-tenderly";
+// import * as tdly from "@tenderly/hardhat-tenderly";
+// import { existsSync } from "fs";
+// function getHomeDir() { return process.env[process.platform == "win32" ? "USERPROFILE" : "HOME"]; }
+// if (existsSync(`${getHomeDir()}/.tenderly/config.yaml`)) {
+//   tdly.setup({
+//     automaticVerifications: true, // automatically verifies contracts !!
+//   });
+// }
 
-dotenv.config({ path: __dirname + "/.env" });
-
-function getEnvVariableOrFail(name: string): string {
-  let value = process.env[name]
-
-  if (typeof value === "string") {
-    return value
-  }
-
-  console.error(`${name} is not defined in the environment`)
-  process.exit(1)
-}
-
-const ARBITRUM_RPC = getEnvVariableOrFail("ARBITRUM_RPC")
-const ETHERSCAN_API_KEY = getEnvVariableOrFail("ETHERSCAN_API_KEY")
-const PRIVATE_KEY = getEnvVariableOrFail("PRIVATE_KEY")
-
-
-function getHomeDir() {
-  return process.env[process.platform == "win32" ? "USERPROFILE" : "HOME"];
-}
-
-if (existsSync(`${getHomeDir()}/.tenderly/config.yaml`)) {
-  const automaticVerifications =
-    process.env["AUTOMATIC_VERIFICATIONS"] == "0" ? false : true;
-  tdly.setup({
-    automaticVerifications: automaticVerifications, // automatically verifies contracts !!
-  });
-}
 const config: HardhatUserConfig = {
   networks: {
     arbitrum: {
@@ -68,8 +45,7 @@ const config: HardhatUserConfig = {
     hardhat: {
       allowUnlimitedContractSize: true,
       forking: {
-        url: process.env["ARBITRUM_RPC"] || "",
-        blockNumber: 38930690,
+        url: ARBITRUM_RPC,
         enabled: true,
       },
     },
@@ -86,7 +62,7 @@ const config: HardhatUserConfig = {
     settings: {
       optimizer: {
         enabled: true,
-        runs: 200,
+        runs: 20,
       },
     },
   },

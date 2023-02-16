@@ -6,9 +6,8 @@ import {
 import { CTokenContract, GmxTokenContract } from "./contract_helpers/Token";
 import { ComptrollerContract } from "./contract_helpers/Comptroller";
 import { OracleContract } from "./contract_helpers/PriceOracle";
-import { getWallet, getAbiFromArbiscan, resetNetwork } from "./utils/TestUtil";
-import * as hre from "hardhat";
-import * as ethers from "ethers";
+import { getWallet, getAbiFromArbiscan, resetNetwork, fundWithEth } from "./utils/TestUtil";
+import hre, { ethers } from "hardhat";
 import { Contract, BigNumber } from "ethers";
 import { expect } from "chai";
 import { formatAmount } from "./utils/TokenUtil";
@@ -74,7 +73,8 @@ let admin: JsonRpcSigner;
 let uBalanceProvider: Contract | JsonRpcProvider;
 
 const walletAddress = "0x52134afB1A391fcEEE6682E51aedbCD47dC55336";
-const adminAddress = "0x85abbc0f8681c4fb33b6a3a601ad99e92a32d1ac";
+// const adminAddress = "0x85abbc0f8681c4fb33b6a3a601ad99e92a32d1ac";
+const adminAddress = '0x80b54e18e5Bb556C6503e1C6F2655749c9e41Da2'
 
 describe("Erc20", () => {
   before(async () => {
@@ -100,6 +100,14 @@ describe("Erc20", () => {
           test.contractName,
           wallet
         );
+        const address = erc20Contract.address
+        await fundWithEth(adminAddress)
+        const delegator  = await ethers.getContractAt('CErc20Delegator', address, admin)
+        const allowResign = true
+        const data = Buffer.from([0x0])
+        const implementation = '0x4dA255e7f6498b75fd1F46bE8AbAB627Bf5f147C'
+        await delegator._setImplementation(implementation, allowResign, data)
+
         comptrollerContract = new ComptrollerContract(admin);
       });
       if (test["mintAmount"]) {
