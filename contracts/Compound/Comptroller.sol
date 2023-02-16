@@ -9,7 +9,7 @@ import "./ComptrollerStorage.sol";
 import "./Unitroller.sol";
 import "./Governance/Comp.sol";
 import "./EIP20Interface.sol";
-import "./IERC721.sol";
+import "./../token/IERC721.sol";
 
 /**
  * @title Compound's Comptroller Contract

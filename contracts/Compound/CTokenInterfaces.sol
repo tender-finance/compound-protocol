@@ -5,9 +5,9 @@ import "./ComptrollerInterface.sol";
 import "./InterestRateModel.sol";
 import "./EIP20NonStandardInterface.sol";
 import "./ErrorReporter.sol";
-import "./IGmxRewardRouter.sol";
-import "./IStakedGlp.sol";
-import "./IRewardTracker.sol";
+import "./../lib/interface/IGmxRewardRouter.sol";
+import "./../lib/interface/IStakedGlp.sol";
+import "./../lib/interface/IRewardTracker.sol";
 
 contract CTokenStorage {
     /**
