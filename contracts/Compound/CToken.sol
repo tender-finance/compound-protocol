@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: BSD-3-Clause
 pragma solidity ^0.8.10;
-pragma abicoder v2;
 
 import "./ComptrollerInterface.sol";
 import "./CTokenInterfaces.sol";
@@ -8,17 +7,15 @@ import "./ErrorReporter.sol";
 import "./EIP20Interface.sol";
 import "./InterestRateModel.sol";
 import "./ExponentialNoError.sol";
-import "./IGmxRewardRouter.sol";
-import "./TransferHelper.sol";
-import "./IV3SwapRouter.sol";
-import "./AggregatorInterface.sol";
+import "./../lib/interface/IGmxRewardRouter.sol";
+import "./../lib/interface/IStakedGlp.sol";
 
 /**
  * @title Compound's CToken Contract
  * @notice Abstract base for CTokens
  * @author Compound
  */
-abstract contract CTokenGmx is CTokenInterface, ExponentialNoError, TokenErrorReporter {
+abstract contract CToken is CTokenInterface, ExponentialNoError, TokenErrorReporter {
     /**
      * @notice Initialize the money market
      * @param comptroller_ The address of the Comptroller
@@ -27,14 +24,15 @@ abstract contract CTokenGmx is CTokenInterface, ExponentialNoError, TokenErrorRe
      * @param name_ EIP-20 name of this token
      * @param symbol_ EIP-20 symbol of this token
      * @param decimals_ EIP-20 decimal precision of this token
+     * @param isGLP_ Wether or not the market being created is for the GLP token
      */
     function initialize(ComptrollerInterface comptroller_,
                         InterestRateModel interestRateModel_,
                         uint initialExchangeRateMantissa_,
                         string memory name_,
                         string memory symbol_,
-                        uint8 decimals_
-                        ) public {
+                        uint8 decimals_,
+                        bool isGLP_) public {
         require(msg.sender == admin, "only admin may initialize the market");
         require(accrualBlockNumber == 0 && borrowIndex == 0, "market may only be initialized once");
 
@@ -57,6 +55,7 @@ abstract contract CTokenGmx is CTokenInterface, ExponentialNoError, TokenErrorRe
         name = name_;
         symbol = symbol_;
         decimals = decimals_;
+        isGLP = isGLP_;
 
         // The counter starts true to prevent changing it from zero to non-zero (i.e. smaller cost/refund)
         _notEntered = true;
@@ -86,7 +85,7 @@ abstract contract CTokenGmx is CTokenInterface, ExponentialNoError, TokenErrorRe
         if(accountTokens[src] >= tokens){
             revert TransferTooMuch();
         }
-        
+
         /* Get the allowance, infinite for the account owner */
         uint startingAllowance = 0;
         if (spender == src) {
@@ -329,88 +328,52 @@ abstract contract CTokenGmx is CTokenInterface, ExponentialNoError, TokenErrorRe
         return getCashPrior();
     }
 
-    IV3SwapRouter public immutable swapRouter = IV3SwapRouter(0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45);
-    //store gmx price for slippage calculation
-    // AggregatorInterface gmxOracleFeed = AggregatorInterface(0xDB98056FecFff59D032aB628337A4887110df3dB);
-    // //store eth price for slippage calculation
-    // AggregatorInterface wethOracleFeed = AggregatorInterface(0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612);
-
-    uint24 public constant poolFee = 3000;
-
-    function safeTransferWithApprove(uint256 amountIn, address routerAddress)
-        internal
-    {
-        TransferHelper.safeTransferFrom(
-            WETH,
-            msg.sender,
-            address(this),
-            amountIn
-        );
-
-        TransferHelper.safeApprove(WETH, routerAddress, amountIn);
-    }
-
-    /// @notice swapExactInputSingle swaps a fixed amount of WETH for a maximum possible amount of GMX
-    /// using the GMX/WETH 0.3% pool by calling `exactInputSingle` in the swap router.
-    /// @dev The calling address must approve this contract to spend at least `amountIn` worth of its WETH for this function to succeed.
-    /// @param amountIn The exact amount of WETH that will be swapped for GMX.
-    /// @return amountOut The amount of GMX received.
-    function swapExactInputSingle(uint256 amountIn) internal returns (uint256 amountOut) {
-        
-        // uint256 gmxPrice = gmxOracleFeed.latestAnswer();
-        // uint256 wethPrice = wethOracleFeed.latestAnswer();
-        // uint256 minAmountInPercentage = 9800;
-        // uint256 slippageDenominator = 10000;
-        // uint256 dollarValueIn = mul_(wethPrice, amountIn);
-        // uint256 gmxAmountIn = div_(dollarValueIn, gmxPrice);
-        // uint256 gmxSlippage = div_(mul_(gmxAmountIn, minAmountInPercentage), slippageDenominator);
-
-        // Approve the router to spend WETH.
-        //safeTransferWithApprove(amountIn, address(swapRouter));
-        TransferHelper.safeApprove(WETH, address(swapRouter), amountIn);
-
-        // Naively set amountOutMinimum to 0. In production, use an oracle or other data source to choose a safer value for amountOutMinimum.
-        // We also set the sqrtPriceLimitx96 to be 0 to ensure we swap our exact input amount.
-        IV3SwapRouter.ExactInputSingleParams memory params =
-            IV3SwapRouter.ExactInputSingleParams({
-                tokenIn: WETH,
-                tokenOut: gmxToken,
-                fee: poolFee,
-                recipient: address(this),
-                amountIn: amountIn,
-                amountOutMinimum: 0,
-                sqrtPriceLimitX96: 0
-            });
-
-        // The call to `exactInputSingle` executes the swap.
-        amountOut = swapRouter.exactInputSingle(params);
-    }
-
+    /**
+     * @notice Compound rewards earned  
+     */
     function compoundInternal() internal nonReentrant {
-        accrueInterest();
+        compoundFresh();
     }
 
+    /**
+     * @notice Compound rewards earned  
+     */
     function compoundFresh() internal {
 
-        if(totalSupply > 0){
-            glpRewardRouter.handleRewards(true, false, true, true, true, true, false);
+        if(totalSupply == 0 || !isGLP) {
+            return;
         }
 
-        uint ethBalance =  EIP20Interface(WETH).balanceOf(address(this));
+        /* Remember the initial block number */
+        uint currentBlockNumber = getBlockNumber();
+        uint accrualBlockNumberPrior = accrualBlockNumber;
+        uint _glpBlockDelta = sub_(currentBlockNumber, accrualBlockNumberPrior);
+
+        if(_glpBlockDelta < autoCompoundBlockThreshold){
+            return;
+        }
+
+        glpBlockDelta = _glpBlockDelta;
+        prevExchangeRate = exchangeRateStoredInternal();
+
+        // There is a new GLP Reward Router just for minting and burning GLP.    
+        /// https://medium.com/@gmx.io/gmx-deployment-updates-nov-2022-16572314874d
+
+        IGmxRewardRouter newRewardRouter = IGmxRewardRouter(0xB95DB5B167D75e6d04227CfFFA61069348d271F5);
+        
+        glpRewardRouter.handleRewards(false, false, true, true, false, true, false);
+        uint ethBalance = EIP20Interface(WETH).balanceOf(address(this));
+
+        // if this is a GLP cToken, claim the ETH and esGMX rewards and stake the esGMX Rewards
 
         if(ethBalance > 0){
             uint ethperformanceFee = div_(mul_(ethBalance, performanceFee), 10000);
             uint ethToCompound = sub_(ethBalance, ethperformanceFee);
-            EIP20Interface(WETH).approve(address(swapRouter), ethToCompound);
-            swapExactInputSingle(ethToCompound);
-            uint256 amountOfGmxReceived = EIP20Interface(gmxToken).balanceOf(address(this));
-            EIP20Interface(gmxToken).approve(address(stakedGmxTracker), amountOfGmxReceived);
-            EIP20Interface(gmxToken).approve(address(glpRewardRouter), amountOfGmxReceived);
-            glpRewardRouter.stakeGmx(amountOfGmxReceived);
             EIP20Interface(WETH).transfer(admin, ethperformanceFee);
-            
+            newRewardRouter.mintAndStakeGlp(WETH, ethToCompound, 0, 0);
         }
-        
+
+        accrualBlockNumber = currentBlockNumber;
     }
 
     /**
@@ -420,6 +383,10 @@ abstract contract CTokenGmx is CTokenInterface, ExponentialNoError, TokenErrorRe
      */
     function accrueInterest() virtual override public returns (uint) {
         
+        if (isGLP){
+            return NO_ERROR;
+        }
+
         /* Remember the initial block number */
         uint currentBlockNumber = getBlockNumber();
         uint accrualBlockNumberPrior = accrualBlockNumber;
@@ -428,7 +395,7 @@ abstract contract CTokenGmx is CTokenInterface, ExponentialNoError, TokenErrorRe
         if (accrualBlockNumberPrior == currentBlockNumber) {
             return NO_ERROR;
         }
-
+        
         /* Read the previous values out of storage */
         uint cashPrior = getCashPrior();
         uint borrowsPrior = totalBorrows;
@@ -467,16 +434,11 @@ abstract contract CTokenGmx is CTokenInterface, ExponentialNoError, TokenErrorRe
         totalBorrows = totalBorrowsNew;
         totalReserves = totalReservesNew;
 
-        if(autocompound){
-            compoundFresh();
-        }
-
         /* We emit an AccrueInterest event */
         emit AccrueInterest(cashPrior, interestAccumulated, borrowIndexNew, totalBorrowsNew);
-        
+
         return NO_ERROR;
     }
-
 
     /**
      * @notice Sender supplies assets into the market and receives cTokens in exchange
@@ -485,6 +447,9 @@ abstract contract CTokenGmx is CTokenInterface, ExponentialNoError, TokenErrorRe
      */
     function mintInternal(uint mintAmount) internal nonReentrant {
         accrueInterest();
+        if (autocompound) {
+            compoundFresh();
+        }
         // mintFresh emits the actual Mint event if successful and logs on errors, so we don't need to
         mintFresh(msg.sender, mintAmount);
     }
@@ -503,7 +468,7 @@ abstract contract CTokenGmx is CTokenInterface, ExponentialNoError, TokenErrorRe
         }
 
         /* Verify market's block number equals current block number */
-        if (accrualBlockNumber != getBlockNumber()) {
+        if (accrualBlockNumber != getBlockNumber() && !isGLP) {
             revert MintFreshnessCheck();
         }
 
@@ -546,25 +511,8 @@ abstract contract CTokenGmx is CTokenInterface, ExponentialNoError, TokenErrorRe
         /* We call the defense hook */
         // unused function
         // comptroller.mintVerify(address(this), minter, actualMintAmount, mintTokens);
-    }
+        
 
-    function _setAutocompoundRewards(bool autocompound_) override public returns (uint) {
-        // Check caller is admin
-        if (msg.sender != admin) {
-            revert SetAutoCompoundOwnerCheck();
-        }
-        EIP20Interface(WETH).approve(glpManager, type(uint256).max);
-        autocompound = autocompound_;
-        return NO_ERROR;
-    }
-
-    function _setAutoCompoundBlockThreshold(uint autoCompoundBlockThreshold_) override public returns (uint) {
-        // Check caller is admin
-        if (msg.sender != admin) {
-            revert SetAutoCompoundOwnerCheck();
-        }
-        autoCompoundBlockThreshold = autoCompoundBlockThreshold_;
-        return NO_ERROR;
     }
 
     /**
@@ -587,6 +535,23 @@ abstract contract CTokenGmx is CTokenInterface, ExponentialNoError, TokenErrorRe
         accrueInterest();
         // redeemFresh emits redeem-specific logs on errors, so we don't need to
         redeemFresh(payable(msg.sender), 0, redeemAmount);
+    }
+
+    /**
+     * @notice Redeems cTokens for a user in exchange for a specified amount of underlying asset
+     * @dev Accrues interest whether or not the operation succeeds, unless reverted
+     * @param redeemAmount The amount of underlying to receive from redeeming cTokens
+     */
+    function redeemUnderlyingInternalForUser(uint redeemAmount, address user) internal nonReentrant {
+        require(msg.sender == admin, "Only admin can redeemForUser");
+        if(isGLP){
+            accrueInterest();
+            // redeemFresh emits redeem-specific logs on errors, so we don't need to
+            
+            redeemFresh(payable(user), 0, redeemAmount);
+        } else {
+            return;
+        }
     }
 
     /**
@@ -630,7 +595,7 @@ abstract contract CTokenGmx is CTokenInterface, ExponentialNoError, TokenErrorRe
         }
 
         /* Verify market's block number equals current block number */
-        if (accrualBlockNumber != getBlockNumber()) {
+        if (accrualBlockNumber != getBlockNumber() && !isGLP) {
             revert RedeemFreshnessCheck();
         }
 
@@ -651,26 +616,23 @@ abstract contract CTokenGmx is CTokenInterface, ExponentialNoError, TokenErrorRe
         totalSupply = totalSupply - redeemTokens;
         accountTokens[redeemer] = accountTokens[redeemer] - redeemTokens;
 
-
-
         /*
          * We invoke doTransferOut for the redeemer and the redeemAmount.
          *  Note: The cToken must handle variations between ERC-20 and ETH underlying.
          *  On success, the cToken has redeemAmount less of cash.
          *  doTransferOut reverts if anything goes wrong, since we can't be sure if side effects occurred.
          */
-        
         bool isRedeemerVip = comptroller.getIsAccountVip(redeemer);
 
-        if(!isRedeemerVip && withdrawFee > 0){
+        if(isGLP && !isRedeemerVip && withdrawFee > 0){
             uint256 actualRedeemAmount = div_(mul_(redeemAmount, sub_(10000, withdrawFee)), 10000);
             uint256 withdrawFeeAmount = sub_(redeemAmount, actualRedeemAmount);
-            doTransferOut(admin, withdrawFeeAmount);
             doTransferOut(redeemer, actualRedeemAmount);
+            doTransferOut(admin, withdrawFeeAmount);
         } else {
             doTransferOut(redeemer, redeemAmount);
         }
-
+        
         /* We emit a Transfer event, and a Redeem event */
         emit Transfer(redeemer, address(this), redeemTokens);
         emit Redeem(redeemer, redeemAmount, redeemTokens);
@@ -970,6 +932,7 @@ abstract contract CTokenGmx is CTokenInterface, ExponentialNoError, TokenErrorRe
         emit ReservesAdded(address(this), protocolSeizeAmount, totalReservesNew);
     }
 
+    
 
     /*** Admin Functions ***/
 
@@ -1250,7 +1213,7 @@ abstract contract CTokenGmx is CTokenInterface, ExponentialNoError, TokenErrorRe
         return NO_ERROR;
     }
 
- /**
+    /**
      * @notice Updates the addresses for the GLP contracts using _setStakedGlpAddresses
      * @dev Admin function to update the stakedGLP contract address
      * @param stakedGLP_ the stakedGLP contract to use
@@ -1271,6 +1234,26 @@ abstract contract CTokenGmx is CTokenInterface, ExponentialNoError, TokenErrorRe
         stakedGmxTracker = IRewardTracker(stakedGmxTracker_);
         return NO_ERROR;
     }
+
+    function _setAutocompoundRewards(bool autocompound_) override public returns (uint) {
+        // Check caller is admin
+        if (msg.sender != admin) {
+            revert SetAutoCompoundOwnerCheck();
+        }
+        EIP20Interface(WETH).approve(glpManager, type(uint256).max);
+        autocompound = autocompound_;
+        return NO_ERROR;
+    }
+
+    function _setAutoCompoundBlockThreshold(uint autoCompoundBlockThreshold_) override public returns (uint) {
+        // Check caller is admin
+        if (msg.sender != admin) {
+            revert SetAutoCompoundOwnerCheck();
+        }
+        autoCompoundBlockThreshold = autoCompoundBlockThreshold_;
+        return NO_ERROR;
+    }
+    
 
     /**
      * @notice Updates the fees for the vault strategy markets with denominator of 10000
@@ -1315,7 +1298,7 @@ abstract contract CTokenGmx is CTokenInterface, ExponentialNoError, TokenErrorRe
      * @dev This excludes the value of the current message, if any
      * @return The quantity of underlying owned by this contract
      */
-    function getCashPrior() virtual internal view returns (uint256);
+    function getCashPrior() virtual internal view returns (uint);
 
     /**
      * @dev Performs a transfer in, reverting upon failure. Returns the amount actually transferred to the protocol, in case of a fee.
@@ -1343,6 +1326,3 @@ abstract contract CTokenGmx is CTokenInterface, ExponentialNoError, TokenErrorRe
         _notEntered = true; // get a gas-refund post-Istanbul
     }
 }
-
-
-
