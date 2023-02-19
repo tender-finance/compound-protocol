@@ -3,6 +3,8 @@ pragma solidity ^0.8.10;
 
 import "./PriceOracle.sol";
 import "./CErc20.sol";
+import "hardhat/console.sol";
+
 /**
  * @dev Wrappers over Solidity's arithmetic operations with added overflow
  * checks.
@@ -168,6 +170,8 @@ interface IERC20 {
     /**
      * @dev Returns the amount of tokens in existence.
      */
+
+    function balanceOf(address) external view returns (uint256);
     function totalSupply() external view returns (uint256);
     function decimals() external view returns (uint8);
 }
@@ -186,6 +190,11 @@ contract GMXPriceOracle is PriceOracle {
     GlpManager public glpManager = GlpManager(0x321F653eED006AD1C29D174e17d96351BDe22649);
     IVaultPriceFeed public gmxPriceFeed = IVaultPriceFeed(0xa18BB1003686d0854EF989BB936211c59EB6e363);
     GmxTokenPriceOracle public gmxTokenPriceOracle = GmxTokenPriceOracle(0xDB98056FecFff59D032aB628337A4887110df3dB);
+    IERC20 public weth = IERC20(0x82aF49447D8a07e3bd95BD0d56f35241523fBab1);
+    IERC20 public tnd = IERC20(0xC47D9753F3b32aA9548a7C3F30b6aEc3B2d2798C);
+    IERC20 public usdc = IERC20(0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8);
+    address tndSwapEth = 0x552acE6BC7347A3D88BbbDEC4da831E621F66bd5;
+    address tndSwapUsdc = 0x88B553F99bf8Cc6c18435C0c19D4d9B433d83645;
 
     function _getUnderlyingAddress(CToken cToken) private view returns (address) {
         address asset;
@@ -209,12 +218,20 @@ contract GMXPriceOracle is PriceOracle {
     function getGmxPrice() public view returns (uint256) {
         return gmxTokenPriceOracle.latestAnswer().mul(1e20);
     }
+    function getTndPrice() public view returns (uint256) {
+      // uint256 tndPerEth = tnd.balanceOf(tndSwap).mul(1e18).div(weth.balanceOf(tndSwap));
+      uint256 price = usdc.balanceOf(tndSwapUsdc).mul(1e18).div(tnd.balanceOf(tndSwapUsdc));
+      console.log('price: %d', price);
+      return price;
+    }
     
     function getUnderlyingPrice(CToken cToken) public override view returns (uint) {
         if(cToken.isGLP()){
             return getGlpAum().mul(1e18).div(glpToken.totalSupply());   
         } else if(compareStrings(cToken.symbol(), "tGMX")){
             return getGmxPrice().mul(1e10);
+        } else if(compareStrings(cToken.symbol(), "tTND")){
+            return getTndPrice().mul(1e20);
         } else {
             IERC20 underlying = IERC20(_getUnderlyingAddress(cToken));
             uint256 decimals = underlying.decimals();
