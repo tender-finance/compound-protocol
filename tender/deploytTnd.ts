@@ -8,9 +8,9 @@ const token = {
   symbol: 'tTND',
   decimals: 8,
   isGLP: false,
-  collateralFactor: formatAmount("20", 16),
+  collateralFactor: formatAmount("30", 16),
   collateralVIP: formatAmount("30", 16),
-  threshold: formatAmount("80", 16),
+  threshold: formatAmount("90", 16),
   thresholdVIP: formatAmount("90", 16),
 }
 
