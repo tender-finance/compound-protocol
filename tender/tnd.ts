@@ -26,7 +26,8 @@ const main = async () => {
   await ttnd.connect(wallet).mint(balance);
   const tusdc = await ethers.getContractAt('CErc20Delegate', tusdcAddress, wallet);
   const usdc = await ethers.getContractAt('CErc20Delegate', usdcAddress, wallet);
-  await tusdc.connect(wallet).borrow(formatAmount(10000, 6));
+  await tusdc.connect(wallet).borrow(formatAmount(400, 6));
+  console.log(await unitroller.getAccountLiquidity(wallet.address))
   console.log(await ttnd.balanceOf(wallet.address))
   console.log(await usdc.balanceOf(wallet.address))
 }
