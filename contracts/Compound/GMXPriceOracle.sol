@@ -3,7 +3,7 @@ pragma solidity ^0.8.10;
 
 import "./PriceOracle.sol";
 import "./CErc20.sol";
-import "hardhat/console.sol";
+import {TndOracle} from "./../tnd/TndOracle.sol";
 
 /**
  * @dev Wrappers over Solidity's arithmetic operations with added overflow
@@ -183,7 +183,7 @@ interface GlpManager{
 interface GmxTokenPriceOracle{
     function latestAnswer() external view returns (uint256);
 }
-contract GMXPriceOracle is PriceOracle {
+contract GMXPriceOracle is PriceOracle, TndOracle {
     using SafeMath for uint256;
     
     IERC20 public glpToken = IERC20(0x4277f8F2c384827B5273592FF7CeBd9f2C1ac258);
@@ -216,13 +216,7 @@ contract GMXPriceOracle is PriceOracle {
         return gmxPriceFeed.getPrice(asset, true, true, true).div(100);
     }
     function getGmxPrice() public view returns (uint256) {
-        return gmxTokenPriceOracle.latestAnswer().mul(1e20);
-    }
-    function getTndPrice() public view returns (uint256) {
-      // uint256 tndPerEth = tnd.balanceOf(tndSwap).mul(1e18).div(weth.balanceOf(tndSwap));
-      uint256 price = usdc.balanceOf(tndSwapUsdc).mul(1e18).div(tnd.balanceOf(tndSwapUsdc));
-      console.log('price: %d', price);
-      return price;
+      return gmxTokenPriceOracle.latestAnswer().mul(1e20);
     }
     
     function getUnderlyingPrice(CToken cToken) public override view returns (uint) {
@@ -231,7 +225,7 @@ contract GMXPriceOracle is PriceOracle {
         } else if(compareStrings(cToken.symbol(), "tGMX")){
             return getGmxPrice().mul(1e10);
         } else if(compareStrings(cToken.symbol(), "tTND")){
-            return getTndPrice().mul(1e20);
+            return getTndPrice();
         } else {
             IERC20 underlying = IERC20(_getUnderlyingAddress(cToken));
             uint256 decimals = underlying.decimals();
