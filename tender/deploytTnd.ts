@@ -62,8 +62,10 @@ export async function deploy(signer: any) {
     signer
   );
 
+  const TndOracle = await hre.ethers.getContractFactory('contracts/tnd/TndOracle.sol:TndOracle', signer);
+  const tndOracle = await TndOracle.deploy();
   const PriceOracle = await hre.ethers.getContractFactory('contracts/Compound/GMXPriceOracle.sol:GMXPriceOracle', signer);
-  const priceOracle = await PriceOracle.deploy();
+  const priceOracle = await PriceOracle.deploy(tndOracle.address);
   await unitrollerProxy._setPriceOracle(priceOracle.address);
   console.log('3')
   let isPrivate = false
