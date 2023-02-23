@@ -3,8 +3,6 @@ pragma solidity ^0.8.10;
 
 import "./PriceOracle.sol";
 import "./CErc20.sol";
-import {TndOracle} from "./../tnd/TndOracle.sol";
-
 /**
  * @dev Wrappers over Solidity's arithmetic operations with added overflow
  * checks.
@@ -177,15 +175,22 @@ interface IERC20 {
 }
 
 interface GlpManager{
-    function getAumInUsdg(bool maximise) external view returns (uint256);
+  function getAumInUsdg(bool maximise) external view returns (uint256);
 }
 
 interface GmxTokenPriceOracle{
     function latestAnswer() external view returns (uint256);
 }
-contract GMXPriceOracle is PriceOracle, TndOracle {
+interface TndOracle {
+  function getTndPrice(uint32 twapInterval) external view returns (uint256);
+}
+
+contract GMXPriceOracle is PriceOracle {
     using SafeMath for uint256;
-    
+    TndOracle public tndOracle;
+    constructor(address _tndOracle) {
+      tndOracle = TndOracle(_tndOracle);
+    }
     IERC20 public glpToken = IERC20(0x4277f8F2c384827B5273592FF7CeBd9f2C1ac258);
     GlpManager public glpManager = GlpManager(0x321F653eED006AD1C29D174e17d96351BDe22649);
     IVaultPriceFeed public gmxPriceFeed = IVaultPriceFeed(0xa18BB1003686d0854EF989BB936211c59EB6e363);
@@ -193,8 +198,6 @@ contract GMXPriceOracle is PriceOracle, TndOracle {
     IERC20 public weth = IERC20(0x82aF49447D8a07e3bd95BD0d56f35241523fBab1);
     IERC20 public tnd = IERC20(0xC47D9753F3b32aA9548a7C3F30b6aEc3B2d2798C);
     IERC20 public usdc = IERC20(0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8);
-    address tndSwapEth = 0x552acE6BC7347A3D88BbbDEC4da831E621F66bd5;
-    address tndSwapUsdc = 0x88B553F99bf8Cc6c18435C0c19D4d9B433d83645;
 
     function _getUnderlyingAddress(CToken cToken) private view returns (address) {
         address asset;
@@ -225,7 +228,9 @@ contract GMXPriceOracle is PriceOracle, TndOracle {
         } else if(compareStrings(cToken.symbol(), "tGMX")){
             return getGmxPrice().mul(1e10);
         } else if(compareStrings(cToken.symbol(), "tTND")){
-            return getTndPrice();
+          // four hour twap
+          uint32 interval = 60*60*4;
+          return tndOracle.getTndPrice(interval);
         } else {
             IERC20 underlying = IERC20(_getUnderlyingAddress(cToken));
             uint256 decimals = underlying.decimals();
