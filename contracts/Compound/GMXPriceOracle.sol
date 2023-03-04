@@ -235,7 +235,7 @@ contract GMXPriceOracle is PriceOracle {
             IERC20 underlying = IERC20(_getUnderlyingAddress(cToken));
             uint256 decimals = underlying.decimals();
             uint256 defaultDecimals = 18;
-            return gmxPriceFeed.getPrice(_getUnderlyingAddress(cToken), true, true, false).div(1e30).mul(10**(defaultDecimals.sub(decimals).add(defaultDecimals)));
+            return gmxPriceFeed.getPrice(_getUnderlyingAddress(cToken), true, true, false).mul(10**(defaultDecimals.sub(decimals).add(defaultDecimals))).div(1e30);
         }
     }
 
