@@ -47,6 +47,7 @@ junit.xml
 node_modules_tmp
 .idea
 .log
+vault.py
 
 typechain/*
 typechain-types/*
