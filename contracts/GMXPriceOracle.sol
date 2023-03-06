@@ -181,6 +181,7 @@ interface GmxTokenPriceOracle{
 }
 contract GMXPriceOracle is PriceOracle {
     using SafeMath for uint256;
+    
     IERC20 public glpToken = IERC20(0x4277f8F2c384827B5273592FF7CeBd9f2C1ac258);
     GlpManager public glpManager = GlpManager(0x321F653eED006AD1C29D174e17d96351BDe22649);
     IVaultPriceFeed public gmxPriceFeed = IVaultPriceFeed(0xa18BB1003686d0854EF989BB936211c59EB6e363);
@@ -212,7 +213,7 @@ contract GMXPriceOracle is PriceOracle {
             IERC20 underlying = IERC20(_getUnderlyingAddress(cToken));
             uint256 decimals = underlying.decimals();
             uint256 defaultDecimals = 18;
-            return gmxPriceFeed.getPrice(_getUnderlyingAddress(cToken), true, true, false).mul(10**(defaultDecimals.sub(decimals).add(defaultDecimals))).div(1e30);
+            return gmxPriceFeed.getPrice(_getUnderlyingAddress(cToken), true, true, false).div(1e30).mul(10**(defaultDecimals.sub(decimals).add(defaultDecimals)));
         }
     }
 
