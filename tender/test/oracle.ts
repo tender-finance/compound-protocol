@@ -108,7 +108,7 @@ const main = async () => {
     const { address, wallet } = info;
     const { priceOracle, unitroller } = await loadFixture(priceOracleFixture);
     const price = await priceOracle.getUnderlyingPrice(address);
-    console.log(`${name} Price:`, formatPrice(price));
+    console.log(`${name} Price:`, price);
     console.log('Account Liquidity in cents Pre Mint 1 Token:', formatPrice((await unitroller.getAccountLiquidity(wallet))[1]));
     await mint(price, address, wallet);
     console.log('Account Liquidity in cents Post Mint 1 Token:', formatPrice((await unitroller.getAccountLiquidity(wallet))[1]));
