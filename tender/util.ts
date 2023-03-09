@@ -1,5 +1,5 @@
 import "@nomiclabs/hardhat-ethers"
-import { ethers } from "hardhat"
+import hre, { ethers } from "hardhat"
 import { BigNumber } from 'ethers'
 
 const addresses = [
@@ -15,11 +15,18 @@ const addresses = [
   { name: 'wEth', contract: 'contracts/libraries/token/IERC20.sol:IERC20', address: '0x82af49447d8a07e3bd95bd0d56f35241523fbab1'}
 ]
 export const fundWithEth = async (receiver: any) => {
-  const [ethWallet] = await ethers.getSigners();
-  await ethWallet.sendTransaction({
-    to: receiver,
-    value: ethers.utils.parseEther("0.5"),
-  });
+  const ethWallets = await ethers.getSigners();
+  for(let i = 0; i < ethWallets.length; i++) {
+    const ethWallet = ethWallets[i];
+    const balance = await ethers.provider.getBalance(ethWallet.address);
+    if( balance >= ethers.utils.parseEther("1")) {
+      await ethWallet.sendTransaction({
+        to: receiver,
+        value: ethers.utils.parseEther("1"),
+      });
+      return;
+    }
+  }
 };
 
 export const formatAmount = (amount: string | number, decimals: number = 18) => {
