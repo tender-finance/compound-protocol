@@ -67,8 +67,7 @@ contract TenderPriceOracle {
       return getGlpPrice();
     }
     ChainLinkPriceOracle oracle = ChainLinkPriceOracle(Oracles[key]);
-    uint256 price = oracle.latestAnswer().mul(1e28).div(10**getUnderlyingDecimals(ctoken));
-    return price;
-    // uint256 scaled = 10**(defaultDecimals.sub(underlyingDecimals));
+    // scale to USD value with 18 decimals
+    return oracle.latestAnswer().mul(10**(28-getUnderlyingDecimals(ctoken)));
   }
 }
