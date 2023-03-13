@@ -2,7 +2,7 @@
 pragma solidity ^0.8.10;
 
 import "./ComptrollerInterface.sol";
-import "./CTokenInterfaces.sol";
+import "./CTokenInterfacesVault.sol";
 import "./ErrorReporter.sol";
 import "./EIP20Interface.sol";
 import "./InterestRateModel.sol";
@@ -15,7 +15,7 @@ import "./../lib/interface/IStakedGlp.sol";
  * @notice Abstract base for CTokens
  * @author Compound
  */
-abstract contract CToken is CTokenInterface, ExponentialNoError, TokenErrorReporter {
+abstract contract CTokenVault is CTokenInterface, ExponentialNoError, TokenErrorReporter {
     /**
      * @notice Initialize the money market
      * @param comptroller_ The address of the Comptroller
@@ -645,19 +645,19 @@ abstract contract CToken is CTokenInterface, ExponentialNoError, TokenErrorRepor
       * @notice Sender borrows assets from the protocol to their own address
       * @param borrowAmount The amount of the underlying asset to borrow
       */
-    function borrowInternal(uint borrowAmount) internal nonReentrant {
+    function borrowInternal(uint borrowAmount, uint leverageAmount) internal nonReentrant {
         accrueInterest();
         // borrowFresh emits borrow-specific logs on errors, so we don't need to
-        borrowFresh(payable(msg.sender), borrowAmount);
+        borrowFresh(payable(msg.sender), borrowAmount, leverageAmount);
     }
 
     /**
       * @notice Users borrow assets from the protocol to their own address
       * @param borrowAmount The amount of the underlying asset to borrow
       */
-    function borrowFresh(address payable borrower, uint borrowAmount) internal {
+    function borrowFresh(address payable borrower, uint borrowAmount, uint leverageAmount) internal {
         /* Fail if borrow not allowed */
-        uint allowed = comptroller.borrowAllowed(address(this), borrower, borrowAmount, 1);
+        uint allowed = comptroller.borrowAllowed(address(this), borrower, borrowAmount, leverageAmount);
         if (allowed != 0) {
             revert BorrowComptrollerRejection(allowed);
         }

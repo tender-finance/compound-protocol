@@ -499,7 +499,8 @@ contract Comptroller is
     function borrowAllowed(
         address cToken,
         address borrower,
-        uint256 borrowAmount
+        uint256 borrowAmount,
+        uint256 leverageAmount
     ) external override returns (uint256) {
         // Pausing is a very serious situation - we revert to sound the alarms
         require(!borrowGuardianPaused[cToken], "borrow is paused");
@@ -547,7 +548,7 @@ contract Comptroller is
             uint256 nextTotalBorrows = add_(totalBorrows, borrowAmount);
             require(nextTotalBorrows < borrowCap, "market borrow cap reached");
         }
-
+        
         (
             Error err,
             ,
@@ -556,9 +557,10 @@ contract Comptroller is
                 borrower,
                 CToken(cToken),
                 0,
-                borrowAmount,
+                borrowAmount * leverageAmount,
                 false
             );
+        
         if (err != Error.NO_ERROR) {
             return uint256(err);
         }

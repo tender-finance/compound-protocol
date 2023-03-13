@@ -20,7 +20,7 @@ abstract contract ComptrollerInterface {
     function redeemAllowed(address cToken, address redeemer, uint redeemTokens) virtual external returns (uint);
     function redeemVerify(address cToken, address redeemer, uint redeemAmount, uint redeemTokens) virtual external;
 
-    function borrowAllowed(address cToken, address borrower, uint borrowAmount) virtual external returns (uint);
+    function borrowAllowed(address cToken, address borrower, uint borrowAmount, uint leverageAmount) virtual external returns (uint);
     function borrowVerify(address cToken, address borrower, uint borrowAmount) virtual external;
 
     function getIsAccountVip(address _account) virtual public view returns (bool);
