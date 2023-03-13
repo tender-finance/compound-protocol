@@ -77,7 +77,7 @@ contract TwapGetter {
   }
 }
 
-contract TndOracle is TwapGetter {
+contract TndPriceGetter is TwapGetter {
   using SafeMath for uint256;
 
   function pow(uint256 base, uint256 exponent) public pure returns (uint256) {
