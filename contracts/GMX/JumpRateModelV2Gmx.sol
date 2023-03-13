@@ -2,7 +2,7 @@
 pragma solidity ^0.8.10;
 
 import "./BaseJumpRateModelV2Gmx.sol";
-import "./InterestRateModel.sol";
+import "./../Compound/InterestRateModel.sol";
 
 
 /**

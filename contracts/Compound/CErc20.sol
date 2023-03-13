@@ -2,8 +2,8 @@
 pragma solidity ^0.8.10;
 
 import "./CToken.sol";
-import "./../token/IERC721.sol";
-import "./../token/IERC721Receiver.sol";
+import "./../lib/interface/IERC721.sol";
+import "./../lib/interface/IERC721Receiver.sol";
 
 interface CompLike {
     function delegate(address delegatee) external;

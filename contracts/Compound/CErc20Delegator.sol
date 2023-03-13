@@ -5,7 +5,7 @@ import "./CTokenInterfaces.sol";
 import "./../lib/interface/IGmxRewardRouter.sol";
 import "./../lib/interface/IStakedGlp.sol";
 import "./EIP20Interface.sol";
-import "./../token/IERC721Receiver.sol";
+import "./../lib/interface/IERC721Receiver.sol";
 
 /**
  * @title Compound's CErc20Delegator Contract

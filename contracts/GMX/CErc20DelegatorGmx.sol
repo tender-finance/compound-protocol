@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: BSD-3-Clause
 pragma solidity ^0.8.10;
 
-import "./CTokenInterfaces.sol";
+import "./../Compound/CTokenInterfaces.sol";
 import "./../lib/interface/IGmxRewardRouter.sol";
 import "./../lib/interface/IStakedGlp.sol";
-import "./EIP20Interface.sol";
-import "./../token/IERC721Receiver.sol";
+import "./../Compound/EIP20Interface.sol";
+import "./../lib/interface/IERC721Receiver.sol";
 
 /**
  * @title Compound's CErc20Delegator Contract

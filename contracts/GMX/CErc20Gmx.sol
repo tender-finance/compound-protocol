@@ -4,8 +4,8 @@ pragma solidity ^0.8.10;
 import "./CTokenGmx.sol";
 import "./../lib/interface/IGmxRewardRouter.sol";
 import "./../lib/interface/IRewardTracker.sol";
-import "./IERC721.sol";
-import "./IERC721Receiver.sol";
+import "./../lib/interface/IERC721.sol";
+import "./../lib/interface/IERC721Receiver.sol";
 
 interface CompLike {
     function delegate(address delegatee) external;

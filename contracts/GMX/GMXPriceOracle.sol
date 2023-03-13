@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: BSD-3-Clause
 pragma solidity ^0.8.10;
 
-import "./PriceOracle.sol";
-import "./CErc20.sol";
+import "./../Compound/PriceOracle.sol";
+import "./../Compound/CErc20.sol";
 /**
  * @dev Wrappers over Solidity's arithmetic operations with added overflow
  * checks.
