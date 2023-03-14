@@ -86,10 +86,11 @@ contract TenderPriceOracle {
     // scale to USD value with 18 decimals
     return oracle.latestAnswer().mul(10**(28-getUnderlyingDecimals(ctoken)));
   }
+
   function getUnderlyingPrice(CToken ctoken) public view returns (uint) {
     if(isVaultToken(ctoken)){
-      return getVaultLeverage(ctoken).mul(_getUnderlyingPrice(ctoken));
+      return _getUnderlyingPrice(ctoken).mul(getVaultLeverage(ctoken));
     }
-    return getUnderlyingPrice(ctoken);
+    return _getUnderlyingPrice(ctoken);
   }
 }
