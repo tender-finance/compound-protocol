@@ -8,6 +8,10 @@ pragma solidity ^0.8.10;
  */
 interface IERC20 {
     /**
+     * @dev Returns the number of decimals for the token.
+     */
+    function decimals() external view returns (uint8);
+    /**
      * @dev Emitted when `value` tokens are moved from one account (`from`) to
      * another (`to`).
      *

@@ -299,11 +299,11 @@ abstract contract CTokenInterface is CTokenStorage {
     function _setReserveFactor(uint newReserveFactorMantissa) virtual external returns (uint);
     function _reduceReserves(uint reduceAmount) virtual external returns (uint);
     function _setInterestRateModel(InterestRateModel newInterestRateModel) virtual external returns (uint);
-    function _setGlpAddresses(IStakedGlp stakedGLP_, IGmxRewardRouter glpRewardRouter_, address glpManager_, address gmxToken_, address stakedGmxTracker_, address sbfGMX_) virtual public returns (uint);
-    function _signalTransfer(address recipient) virtual public returns (uint);
-    function _setAutocompoundRewards(bool autocompound_) virtual public returns (uint);
-    function _setAutoCompoundBlockThreshold(uint256 autoCompoundBlockThreshold_) virtual public returns (uint);
-    function _setVaultFees(uint256 withdrawFee_, uint256 performanceFee_) virtual public returns (uint);
+    // function _setGlpAddresses(IStakedGlp stakedGLP_, IGmxRewardRouter glpRewardRouter_, address glpManager_, address gmxToken_, address stakedGmxTracker_, address sbfGMX_) virtual public returns (uint);
+    // function _signalTransfer(address recipient) virtual public returns (uint);
+    // function _setAutocompoundRewards(bool autocompound_) virtual public returns (uint);
+    // function _setAutoCompoundBlockThreshold(uint256 autoCompoundBlockThreshold_) virtual public returns (uint);
+    // function _setVaultFees(uint256 withdrawFee_, uint256 performanceFee_) virtual public returns (uint);
 }
 
 contract CErc20Storage {
@@ -320,15 +320,15 @@ abstract contract CErc20Interface is CErc20Storage {
     function mint(uint mintAmount) virtual external returns (uint);
     function redeem(uint redeemTokens) virtual external returns (uint);
     function redeemUnderlying(uint redeemAmount) virtual external returns (uint); 
-    function redeemUnderlyingForUser(uint redeemAmount, address user) virtual external returns (uint); 
+    // function redeemUnderlyingForUser(uint redeemAmount, address user) virtual external returns (uint); 
     function borrow(uint borrowAmount) virtual external returns (uint);
     function repayBorrow(uint repayAmount) virtual external returns (uint);
     function repayBorrowBehalf(address borrower, uint repayAmount) virtual external returns (uint);
     function liquidateBorrow(address borrower, uint repayAmount, CTokenInterface cTokenCollateral) virtual external returns (uint);
     function sweepToken(EIP20NonStandardInterface token) virtual external;
-    function depositNFT(address _NFTAddress, uint256 _TokenID) virtual external;
-    function withdrawNFT(address _NFTAddress, uint256 _TokenID) virtual external;
-    function compound() virtual external returns (uint);
+    // function depositNFT(address _NFTAddress, uint256 _TokenID) virtual external;
+    // function withdrawNFT(address _NFTAddress, uint256 _TokenID) virtual external;
+    // function compound() virtual external returns (uint);
     
 
     /*** Admin Functions ***/

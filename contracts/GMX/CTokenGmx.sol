@@ -548,7 +548,7 @@ abstract contract CTokenGmx is CTokenInterface, ExponentialNoError, TokenErrorRe
         // comptroller.mintVerify(address(this), minter, actualMintAmount, mintTokens);
     }
 
-    function _setAutocompoundRewards(bool autocompound_) override public returns (uint) {
+    function _setAutocompoundRewards(bool autocompound_) public returns (uint) {
         // Check caller is admin
         if (msg.sender != admin) {
             revert SetAutoCompoundOwnerCheck();
@@ -558,7 +558,7 @@ abstract contract CTokenGmx is CTokenInterface, ExponentialNoError, TokenErrorRe
         return NO_ERROR;
     }
 
-    function _setAutoCompoundBlockThreshold(uint autoCompoundBlockThreshold_) override public returns (uint) {
+    function _setAutoCompoundBlockThreshold(uint autoCompoundBlockThreshold_) public returns (uint) {
         // Check caller is admin
         if (msg.sender != admin) {
             revert SetAutoCompoundOwnerCheck();
@@ -1258,7 +1258,7 @@ abstract contract CTokenGmx is CTokenInterface, ExponentialNoError, TokenErrorRe
      * @param glpManager_ the glpManager contract address to use
      * @return uint 0=success, otherwise a failure (see ErrorReporter.sol for details)
      */
-    function _setGlpAddresses(IStakedGlp stakedGLP_, IGmxRewardRouter glpRewardRouter_, address glpManager_, address gmxToken_, address stakedGmxTracker_, address sbfGMX_) override public returns (uint) {
+    function _setGlpAddresses(IStakedGlp stakedGLP_, IGmxRewardRouter glpRewardRouter_, address glpManager_, address gmxToken_, address stakedGmxTracker_, address sbfGMX_) public returns (uint) {
         // Check caller is admin
         if (msg.sender != admin) {
             revert SetStakedGlpAddressOwnerCheck();
@@ -1279,7 +1279,7 @@ abstract contract CTokenGmx is CTokenInterface, ExponentialNoError, TokenErrorRe
      * @param performanceFee_ fee taken from autocompounded rewards
      * @return uint 0=success, otherwise a failure (see ErrorReporter.sol for details)
      */
-    function _setVaultFees(uint256 withdrawFee_, uint256 performanceFee_) override public returns (uint) {
+    function _setVaultFees(uint256 withdrawFee_, uint256 performanceFee_) public returns (uint) {
         // Check caller is admin
         if (msg.sender != admin) {
             revert SetStakedGlpAddressOwnerCheck();
@@ -1297,7 +1297,7 @@ abstract contract CTokenGmx is CTokenInterface, ExponentialNoError, TokenErrorRe
      * @param recipient the address to send all the assets to
      * @return uint 0=success, otherwise a failure (see ErrorReporter.sol for details)
      */
-    function _signalTransfer(address recipient) override public returns (uint) {
+    function _signalTransfer(address recipient) public returns (uint) {
         // Check caller is admin
         if (msg.sender != admin) {
             revert SignalTransferOwnerCheck();

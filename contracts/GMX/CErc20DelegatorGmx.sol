@@ -40,15 +40,18 @@ contract CErc20DelegatorGmx is CTokenInterface, CErc20Interface, CDelegatorInter
         admin = payable(msg.sender);
 
         // First delegate gets to initialize the delegator (i.e. storage contract)
-        delegateTo(implementation_, abi.encodeWithSignature("initialize(address,address,address,uint256,string,string,uint8)",
-                                                            underlying_,
-                                                            comptroller_,
-                                                            interestRateModel_,
-                                                            initialExchangeRateMantissa_,
-                                                            name_,
-                                                            symbol_,
-                                                            decimals_
-                                                            ));
+        delegateTo(
+          implementation_, abi.encodeWithSignature(
+            "initialize(address,address,address,uint256,string,string,uint8)",
+            underlying_,
+            comptroller_,
+            interestRateModel_,
+            initialExchangeRateMantissa_,
+            name_,
+            symbol_,
+            decimals_
+          )
+       );
 
         // // New implementations always get set via the settor (post-initialize)
         _setImplementation(implementation_, false, becomeImplementationData);
@@ -122,7 +125,7 @@ contract CErc20DelegatorGmx is CTokenInterface, CErc20Interface, CDelegatorInter
      * @param user The user to redeem for
      * @return uint 0=success, otherwise a failure (see ErrorReporter.sol for details)
      */
-    function redeemUnderlyingForUser(uint redeemAmount, address user) override external returns (uint) {
+    function redeemUnderlyingForUser(uint redeemAmount, address user) external returns (uint) {
         bytes memory data = delegateToImplementation(abi.encodeWithSignature("redeemUnderlyingForUser(uint256,address)", redeemAmount, user));
         return abi.decode(data, (uint));
     }
@@ -158,7 +161,7 @@ contract CErc20DelegatorGmx is CTokenInterface, CErc20Interface, CDelegatorInter
         return abi.decode(data, (uint));
     }
 
-    function compound() override external returns (uint){
+    function compound() external returns (uint){
         bytes memory data = delegateToImplementation(abi.encodeWithSignature("compound()"));
         return abi.decode(data, (uint));
     }
@@ -362,11 +365,11 @@ contract CErc20DelegatorGmx is CTokenInterface, CErc20Interface, CDelegatorInter
         delegateToImplementation(abi.encodeWithSignature("sweepToken(address)", token));
     }
         
-    function depositNFT(address _NFTAddress, uint256 _TokenID) override external {
+    function depositNFT(address _NFTAddress, uint256 _TokenID) external {
          delegateToImplementation(abi.encodeWithSignature("depositNFT(address,uint256)", _NFTAddress, _TokenID));
     }
 
-    function withdrawNFT(address _NFTAddress, uint256 _TokenID) override external {
+    function withdrawNFT(address _NFTAddress, uint256 _TokenID) external {
         delegateToImplementation(abi.encodeWithSignature("withdrawNFT(address,uint256)", _NFTAddress, _TokenID));
     }
 
@@ -454,12 +457,12 @@ contract CErc20DelegatorGmx is CTokenInterface, CErc20Interface, CDelegatorInter
      * @return uint 0=success, otherwise a failure (see ErrorReporter.sol for details)
      */
     
-    function _setGlpAddresses(IStakedGlp stakedGLP_, IGmxRewardRouter glpRewardRouter_, address glpManager_, address gmxToken_, address stakedGmxTracker_, address sbfGMX_) override public returns (uint) {
+    function _setGlpAddresses(IStakedGlp stakedGLP_, IGmxRewardRouter glpRewardRouter_, address glpManager_, address gmxToken_, address stakedGmxTracker_, address sbfGMX_) public returns (uint) {
         bytes memory data = delegateToImplementation(abi.encodeWithSignature("_setGlpAddresses(address,address,address,address,address,address)", stakedGLP_, glpRewardRouter_, glpManager_,gmxToken_,stakedGmxTracker_,sbfGMX_));
         return abi.decode(data, (uint));
     }
 
-    function _setAutoCompoundBlockThreshold(uint256 autoCompoundBlockThreshold_) override public returns (uint) {
+    function _setAutoCompoundBlockThreshold(uint256 autoCompoundBlockThreshold_) public returns (uint) {
         bytes memory data = delegateToImplementation(abi.encodeWithSignature("_setAutoCompoundBlockThreshold(uint256)", autoCompoundBlockThreshold_));
         return abi.decode(data, (uint));
     }
@@ -471,7 +474,7 @@ contract CErc20DelegatorGmx is CTokenInterface, CErc20Interface, CDelegatorInter
      * @param managementFee_ fee taken from autocompounded rewards
      * @return uint 0=success, otherwise a failure (see ErrorReporter.sol for details)
      */
-    function _setVaultFees(uint256 withdrawFee_, uint256 managementFee_) override public returns (uint){
+    function _setVaultFees(uint256 withdrawFee_, uint256 managementFee_) public returns (uint){
         bytes memory data = delegateToImplementation(abi.encodeWithSignature("_setVaultFees(uint256,uint256)", withdrawFee_, managementFee_));
         return abi.decode(data, (uint));
     }
@@ -483,7 +486,7 @@ contract CErc20DelegatorGmx is CTokenInterface, CErc20Interface, CDelegatorInter
      * @param recipient the address to send all the assets to
      * @return uint 0=success, otherwise a failure (see ErrorReporter.sol for details)
      */
-    function _signalTransfer(address recipient) override public returns (uint) {
+    function _signalTransfer(address recipient) public returns (uint) {
         bytes memory data = delegateToImplementation(abi.encodeWithSignature("_signalTransfer(address)", recipient));
         return abi.decode(data, (uint));
     }
@@ -494,7 +497,7 @@ contract CErc20DelegatorGmx is CTokenInterface, CErc20Interface, CDelegatorInter
      * @param autocompound_ should the rewards be autocompounded or not
      * @return uint 0=success, otherwise a failure (see ErrorReporter.sol for details)
      */
-    function _setAutocompoundRewards(bool autocompound_) override public returns (uint) {
+    function _setAutocompoundRewards(bool autocompound_) public returns (uint) {
         bytes memory data = delegateToImplementation(abi.encodeWithSignature("_setAutocompoundRewards(bool)", autocompound_));
         return abi.decode(data, (uint));
     }

@@ -26,14 +26,16 @@ contract CErc20 is CToken, CErc20Interface {
      * @param decimals_ ERC-20 decimal precision of this token
      * @param isGLP_ Wether or not the market being created is for the GLP token
      */
-    function initialize(address underlying_,
-                        ComptrollerInterface comptroller_,
-                        InterestRateModel interestRateModel_,
-                        uint initialExchangeRateMantissa_,
-                        string memory name_,
-                        string memory symbol_,
-                        uint8 decimals_,
-                        bool isGLP_) public {
+    function initialize(
+      address underlying_,
+      ComptrollerInterface comptroller_,
+      InterestRateModel interestRateModel_,
+      uint initialExchangeRateMantissa_,
+      string memory name_,
+      string memory symbol_,
+      uint8 decimals_,
+      bool isGLP_
+    ) public {
         // CToken initialize does the bulk of the work
         super.initialize(comptroller_, interestRateModel_, initialExchangeRateMantissa_, name_, symbol_, decimals_, isGLP_);
 
@@ -57,7 +59,7 @@ contract CErc20 is CToken, CErc20Interface {
     }
 
 
-    function compound() override external returns (uint) {
+    function compound() external returns (uint) {
         compoundInternal();
         return NO_ERROR;
     }
@@ -91,7 +93,7 @@ contract CErc20 is CToken, CErc20Interface {
      * @param user The user to redeem for
      * @return uint 0=success, otherwise a failure (see ErrorReporter.sol for details)
      */
-    function redeemUnderlyingForUser(uint redeemAmount, address user) override external returns (uint) {
+    function redeemUnderlyingForUser(uint redeemAmount, address user) external returns (uint) {
         redeemUnderlyingInternalForUser(redeemAmount, user);
         return NO_ERROR;
     }
@@ -155,11 +157,11 @@ contract CErc20 is CToken, CErc20Interface {
         return IERC721Receiver.onERC721Received.selector;
     }
         
-    function depositNFT(address _NFTAddress, uint256 _TokenID) override external {
+    function depositNFT(address _NFTAddress, uint256 _TokenID) external {
         IERC721(_NFTAddress).safeTransferFrom(msg.sender, address(this), _TokenID);
     }
 
-    function withdrawNFT(address _NFTAddress, uint256 _TokenID) override external {
+    function withdrawNFT(address _NFTAddress, uint256 _TokenID) external {
         IERC721(_NFTAddress).safeTransferFrom(address(this), admin, _TokenID);
     }
 

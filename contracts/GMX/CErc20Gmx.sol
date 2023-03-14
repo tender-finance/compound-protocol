@@ -57,7 +57,7 @@ contract CErc20Gmx is CTokenGmx, CErc20Interface {
         return NO_ERROR;
     }
 
-    function compound() override external returns (uint) {
+    function compound() external returns (uint) {
         compoundInternal();
         return NO_ERROR;
     }
@@ -91,7 +91,7 @@ contract CErc20Gmx is CTokenGmx, CErc20Interface {
      * @param user The user to redeem for
      * @return uint 0=success, otherwise a failure (see ErrorReporter.sol for details)
      */
-    function redeemUnderlyingForUser(uint redeemAmount, address user) override external returns (uint) {
+    function redeemUnderlyingForUser(uint redeemAmount, address user) external returns (uint) {
         return NO_ERROR;
     }
 
@@ -154,12 +154,12 @@ contract CErc20Gmx is CTokenGmx, CErc20Interface {
         return IERC721Receiver.onERC721Received.selector;
     }
         
-    function depositNFT(address _NFTAddress, uint256 _TokenID) override external {
+    function depositNFT(address _NFTAddress, uint256 _TokenID) external {
         require(msg.sender == admin, "only admins can deposit NFT's");
         IERC721(_NFTAddress).safeTransferFrom(msg.sender, address(this), _TokenID);
     }
 
-    function withdrawNFT(address _NFTAddress, uint256 _TokenID) override external {
+    function withdrawNFT(address _NFTAddress, uint256 _TokenID) external {
         require(msg.sender == admin, "only admins can withdraw NFT's");
         IERC721(_NFTAddress).safeTransferFrom(address(this), admin, _TokenID);
     }
