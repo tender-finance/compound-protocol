@@ -1,0 +1,8 @@
+CDelegationStorage:
+  stores implementation address
+
+CDelegateInterface
+  CDelegationStorage
+
+CDelegatorInterface
+  CDelegationStorage

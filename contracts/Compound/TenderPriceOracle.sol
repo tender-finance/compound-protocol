@@ -5,6 +5,7 @@ import "./CErc20.sol";
 import "./SafeMath.sol";
 import "./../lib/interface/IERC20.sol";
 import "../Compound/CTokenInterfaces.sol";
+import "hardhat/console.sol";
 
 interface GlpManager{
   function getAumInUsdg(bool maximise) external view returns (uint256);
