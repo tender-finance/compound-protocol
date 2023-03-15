@@ -11,7 +11,7 @@ const glpSupplier = '0x236F233dBf78341d25fB0F1bD14cb2bA4b8a777c'
 
 const getUnitroller = async () => {
   return await hre.ethers.getContractAt(
-    "Comptroller",
+    "contracts/Compound/Comptroller.sol:Comptroller",
     unitrollerAddress,
   );
 }
@@ -40,7 +40,7 @@ const main = async () => {
   const fsGlp = await get_fsGLP();
   const sglp = await get_sGLP();
   const tfsGlp = await get_tfsGLP();
-  const vGlp = await deploy();
+  const { vault: vault, vaultToken: vGlp } = await deploy();
 
   await sglp.connect(wallet).approve(tfsGlp.address, await fsGlp.balanceOf(wallet.address));
   await sglp.connect(wallet).approve(vGlp.address, await fsGlp.balanceOf(wallet.address));
@@ -63,9 +63,10 @@ const main = async () => {
     console.log('vglp post mint:', await vGlp.balanceOf(wallet.address));
   }
 
-  const unitroller = await getUnitroller();
-  await mint_vGLP();
-  console.log(await unitroller.getAccountLiquidity(wallet.address));
+  const balance = await fsGlp.balanceOf(wallet.address);
+  await sglp.connect(wallet).approve(vault.address, await fsGlp.balanceOf(wallet.address));
+  await fsGlp.connect(wallet).approve(vault.address, await fsGlp.balanceOf(wallet.address));
+  await vault.connect(wallet).deposit(balance);
 }
 
 main()

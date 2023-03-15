@@ -397,6 +397,10 @@ contract CErc20DelegatorVault is CTokenInterface, CErc20VaultInterface, CDelegat
         return abi.decode(data, (uint));
     }
 
+    function _setVaultAddress(address vault_) external returns (uint) {
+        bytes memory data = delegateToImplementation(abi.encodeWithSignature("_setVaultAddress(address)", vault_));
+        return abi.decode(data, (uint));
+    }
     /**
       * @notice Sets a new comptroller for the market
       * @dev Admin function to set a new comptroller

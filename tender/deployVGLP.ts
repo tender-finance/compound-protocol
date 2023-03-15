@@ -4,17 +4,16 @@ import { formatAmount, fundWithEth } from "./util";
 import { readFileSync, writeFileSync } from "fs";
 import { numToWei } from "./utils/ethUnitParser";
 const token = {
-  max_leverage: 1,
   underlying: '0x1aDDD80E6039594eE970E5872D247bf0414C8903',
   symbol: 'vGLP',
   decimals: 8,
   isGLP: true,
   // vault: '0x236F233dBf78341d25fB0F1bD14cb2bA4b8a777c',
   vault: '0x80b54e18e5Bb556C6503e1C6F2655749c9e41Da2',
-  collateralFactor: formatAmount("50", 16),
-  collateralVIP: formatAmount("50", 16),
-  threshold: formatAmount("60", 16),
-  thresholdVIP: formatAmount("60", 16),
+  collateralFactor: formatAmount("90", 16),
+  collateralVIP: formatAmount("90", 16),
+  threshold: formatAmount("95", 16),
+  thresholdVIP: formatAmount("95", 16),
 }
 
 const unitrollerAddress = '0xeed247Ba513A8D6f78BE9318399f5eD1a4808F8e'
@@ -22,6 +21,7 @@ const unitrollerAddress = '0xeed247Ba513A8D6f78BE9318399f5eD1a4808F8e'
 export async function deploy() {
   const signer = await ethers.getImpersonatedSigner('0x80b54e18e5Bb556C6503e1C6F2655749c9e41Da2')
   await fundWithEth(signer.address);
+
   const CErc20DelegateVault = await  hre.ethers.getContractFactory("CErc20DelegateVault", signer);
   const delegate = await CErc20DelegateVault.deploy()
   const CErc20DelegatorVault = await  hre.ethers.getContractFactory("CErc20DelegatorVault", signer);
@@ -61,12 +61,14 @@ export async function deploy() {
   );
 
   const unitrollerProxy = await hre.ethers.getContractAt(
-    "Comptroller",
+    "contracts/Compound/Comptroller.sol:Comptroller",
     unitrollerAddress,
     signer
   );
   const Oracle = await hre.ethers.getContractFactory("TenderPriceOracle", signer);
-  const oracle = await Oracle.deploy([delegator.address], [token.max_leverage]);
+  const oracle = await Oracle.deploy([]);
+  await oracle.addVaultToken(delegator.address);
+
   await unitrollerProxy._setPriceOracle(oracle.address);
 
   let isPrivate = false
@@ -81,5 +83,16 @@ export async function deploy() {
     token.threshold,
     token.thresholdVIP
   );
-  return await hre.ethers.getContractAt('CErc20DelegateVault', delegator.address, signer)
+
+  const vaultToken = await hre.ethers.getContractAt('CErc20DelegateVault', delegator.address, signer)
+  const depositToken = token.underlying
+  const targetMarket = '0xFF2073D3810754D6da4783235c8647e11e43C943';
+  const Vault = await hre.ethers.getContractFactory("Vault", signer);
+  const vault = await Vault.deploy(depositToken, targetMarket, vaultToken.address);
+  await vaultToken._setVaultAddress(vault.address);
+
+  return {
+    vault: vault,
+    vaultToken: vaultToken,
+  }
 }

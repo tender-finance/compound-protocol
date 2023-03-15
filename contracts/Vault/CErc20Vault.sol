@@ -48,7 +48,7 @@ contract CErc20Vault is VaultCToken, CErc20VaultInterface {
         vault = vault_;
         EIP20Interface(underlying).totalSupply();
     }
-    
+
     /*** User Interface ***/
 
     /**
@@ -64,6 +64,11 @@ contract CErc20Vault is VaultCToken, CErc20VaultInterface {
         return NO_ERROR;
     }
 
+    function _setVaultAddress(address vault_) external returns (uint) {
+        require(msg.sender == admin, "CErc20::setVaultAddress: only admin can set vault address");
+        vault = vault_;
+        return NO_ERROR;
+    }
 
     function compound() external returns (uint) {
         compoundInternal();
