@@ -1,13 +1,14 @@
 // SPDX-License-Identifier: BSD-3-Clause
 pragma solidity ^0.8.10;
-import {CToken, Comptroller} from './../lib/interface/Compound.sol';
-import {Addresses} from './../lib/Addresses.sol';
+import {CToken, Comptroller} from "./../lib/interface/Compound.sol";
+import {Addresses} from "./../lib/Addresses.sol";
 import {TransferHelper} from "./../lib/TransferHelper.sol";
 import {IVault} from "./interfaces/IVault.sol";
 import {SafeMath} from "./SafeMath.sol";
 import {IV3SwapRouter} from "./../lib/interface/IV3SwapRouter.sol";
 import {GlpManager, GlpRewardRouter, IERC20} from "./interfaces/GMX.sol";
-import {TenderPriceOracle} from './../Compound/TenderPriceOracle.sol';
+import {TenderPriceOracle} from "./../Compound/TenderPriceOracle.sol";
+import {IWETH9} from "./../lib/IWETH9.sol";
 import "hardhat/console.sol";
 
 contract VaultStorage is Addresses {
@@ -21,6 +22,8 @@ contract VaultStorage is Addresses {
   uint256 public fee = 1e16; // 1% fee to cover glp minting
 
   address[] public markets;
+
+  IWETH9 public constant WETH = IWETH9(0x82aF49447D8a07e3bd95BD0d56f35241523fBab1);
 
   IERC20 public glp = IERC20(0x4277f8F2c384827B5273592FF7CeBd9f2C1ac258);
   IERC20 public fsGlp = IERC20(0x1aDDD80E6039594eE970E5872D247bf0414C8903);
@@ -119,8 +122,12 @@ contract VaultHelper is VaultStorage, TokenSwap {
       uint256 toBorrowInUSD = borrowTotal.mul(vaultPercent).div(1e18);
       borrowTokenUSD(address(ctoken), toBorrowInUSD);
       if (address(ctoken) != tETH) {
-        swap(underlying, USDC, IERC20(underlying).balanceOf(address(this)));
+        swap(underlying, wETH, IERC20(underlying).balanceOf(address(this)));
+      } else if (address(ctoken) == tETH){
+        uint256 ethBalance = address(this).balance;
+        WETH.deposit{value:ethBalance}();
       }
+
       // uint256 usdPerToken = oracle.getUSDPrice(underlying).mul(10**underlyingDecimals).div(1e18);
       // uint toBorrow = toBorrowInUSD.mul(10**underlyingDecimals).div(usdPerToken);
       // console.log("borrowing %s", toBorrow);
@@ -169,3 +176,4 @@ contract VaultHelper is VaultStorage, TokenSwap {
   //   return borrowable;
   // }
 }
+
