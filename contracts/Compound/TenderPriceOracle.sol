@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import {CToken, Comptroller} from './../lib/interface/Compound.sol';
 import "./../lib/interface/IERC20.sol";
 import "./../lib/Addresses.sol";
+// import "./../../lib/forge-std/src/console2.sol";
 
 interface GlpManager{
   function getAumInUsdg(bool maximise) external view returns (uint256);
@@ -23,7 +24,7 @@ contract TenderPriceOracle is Addresses, Ownable {
   mapping(address => bool) public vaultTokens;
 
   IERC20 public glpToken = IERC20(0x4277f8F2c384827B5273592FF7CeBd9f2C1ac258);
-  GlpManager public glpManager = GlpManager(0x321F653eED006AD1C29D174e17d96351BDe22649);
+  GlpManager public manager = GlpManager(0x321F653eED006AD1C29D174e17d96351BDe22649);
   address public fsGLP = 0x1aDDD80E6039594eE970E5872D247bf0414C8903;
 
   constructor(address[] memory _vaultTokens) {
@@ -66,7 +67,7 @@ contract TenderPriceOracle is Addresses, Ownable {
   }
 
   function getGlpAum() public view returns (uint256) {
-    return glpManager.getAumInUsdg(true);
+    return manager.getAumInUsdg(true);
   }
 
   function getGlpPrice() public view returns (uint256) {

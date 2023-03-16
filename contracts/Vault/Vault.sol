@@ -4,14 +4,14 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./SafeMath.sol";
 import './VaultStorage.sol';
-import "hardhat/console.sol";
+import 'hardhat/console.sol';
 
 contract Vault is ReentrancyGuard, Ownable, VaultHelper {
   using SafeMath for uint;
-  mapping(address => uint256) public depositBalance;
-  mapping(address => uint256) public glpBalance;
-  mapping(address => uint256) public borrowableBalance;
-  mapping(address => uint256) public vaultTokenBalances;
+  mapping(address => uint) public depositBalance;
+  mapping(address => uint) public glpBalance;
+  mapping(address => uint) public accountLiquidity;
+  mapping(address => uint) public vaultTokenBalances;
 
   /*
   * @param depositToken_ address of the token to be deposited
@@ -29,13 +29,13 @@ contract Vault is ReentrancyGuard, Ownable, VaultHelper {
     (,collateralFactor,,,,,,) = comptroller.markets(address(vaultToken));
     oracle =  TenderPriceOracle(address(comptroller.oracle()));
     markets = [
-      // tETH,
-      tUSDC,
+      tUSDT,
+      // tUSDC,
+      tETH,
       tWBTC,
       tDAI,
       tLINK,
-      tUNI,
-      tUSDT
+      tUNI
     ];
   }
 
@@ -63,9 +63,7 @@ contract Vault is ReentrancyGuard, Ownable, VaultHelper {
   }
 
   function mintForAccount(address account, address token, uint256 amount) internal {
-    // console.log('approving');
     // mintApprovals(token, amount);
-    // console.log('minting');
     // glpRouter.mintAndStakeGlp(token, amount, 0, 0);
   }
 
@@ -87,33 +85,51 @@ contract Vault is ReentrancyGuard, Ownable, VaultHelper {
       );
       IERC20(depositToken).transferFrom(msg.sender, address(this), amount);
     }
-    address account = msg.sender;
-    uint vaultTokenBalance = vaultToken.balanceOf(address(this));
-    uint balance = fsGlp.balanceOf(address(this));
+    (,uint currentLiquidity, uint currentShortfall) = Comptroller(unitroller).getAccountLiquidity(address(this));
     mintVaultToken(amount);
-    uint vaultTokensForAccount = vaultToken.balanceOf(address(this))-vaultTokenBalance;
-    uint collateralBalance = amount-getFeeAmount(amount);
-    vaultTokenBalances[account] += vaultTokensForAccount;
-    uint borrowTotal = calculateBorrowUSDTotal(collateralBalance);
-    borrowAndSwap(borrowTotal);
-    console.log('borrowed USDC:', IERC20(USDC).balanceOf(address(this)));
-    // depositBalance[account] += collateralBalance;
-    // uint totalValueWithLeverage = calculateLeveragedTotal(amount);
-    //
-    // uint increase = fsGlp.balanceOf(address(this)).sub(balance);
-    // uint256 borrowablePre = getTotalBorrowable(address(this));
-    // borrowableBalance[account] += getTotalBorrowable(address(this)) - borrowablePre;
-    // glpBalance[account] += increase;
+    depositBalance[msg.sender] += amount-getFeeAmount(amount);
+    (,uint newLiquidity, uint newShortfall) = Comptroller(unitroller).getAccountLiquidity(address(this));
+
+    /*
+      Check if the increase in liquidity is greater than or equal to any existing shortfall
+      Y: Add the old shortfall balance to any new (liquidity >= 0), as liquidity would be 0 if shortfall > 0;
+      N: Add the decrease in shortfall after mint to the new (liquidity == 0)
+    */
+    uint shortfallReduction = (newShortfall ==  0 && currentShortfall > 0)
+      ? currentShortfall
+      : currentShortfall-newShortfall;
+
+    uint liquidityIncrease = newLiquidity-currentLiquidity;
+
+    accountLiquidity[msg.sender] += liquidityIncrease.add(shortfallReduction);
   }
 
-  function loop(uint256 leverage) public nonReentrant {
-    loopLeverage(msg.sender, leverage);
-  }
+  function borrowAndMint() public nonReentrant {
+    /*
+      TODO: Ensure that the vault will not be held accountable for losses after withdrawls
+        1. ensure that 90%% of the of the underlying value of the vGLP tokens has been borrowed against
+        2. send the depositer all vGLP tokens worth the value of the collateral they deposited
+    */
+    console.log('liquidity %s', accountLiquidity[msg.sender]);
+    uint borrowTotal = calculateBorrowUSDTotal(accountLiquidity[msg.sender]);
+    for (uint i = 0; i < markets.length; i++) {
+      address ctoken = markets[i];
 
-  function loopLeverage(address account, uint leverage) internal {
-  }
+      address underlying = getUnderlying(address(ctoken));
+      uint256 vaultPercent = calculateVaultPercentageCurrent(underlying);
+      uint256 toBorrowUSD = borrowTotal.mul(vaultPercent).div(1e18);
 
-  function getGlpBalance(address account) public view returns (uint256) {
-    return glpBalance[account];
+      accountLiquidity[msg.sender] -= borrowAndSwap(address(ctoken), borrowTotal);
+      borrowTokenUSD(address(ctoken), toBorrowUSD);
+      uint wEthIncrease = (address(ctoken) == tETH)
+        ? wrapEth()
+        : swap(underlying, wETH, IERC20(underlying).balanceOf(address(this)));
+      accountLiquidity[msg.sender] -= wEthIncrease.mul(oracle.getUSDPrice(wETH)).div(1e18);
+      console.log('New Collateral Balance: %d', accountLiquidity[msg.sender]);
+    }
+    IERC20(wETH).approve(address(glpRouter), IERC20(wETH).balanceOf(address(this)));
+    IERC20(wETH).approve(address(glpManager), IERC20(wETH).balanceOf(address(this)));
+    glpRouter.mintAndStakeGlp(wETH, IERC20(wETH).balanceOf(address(this)), 0, 0);
+    console.log(fsGlp.balanceOf(address(this)));
   }
 }

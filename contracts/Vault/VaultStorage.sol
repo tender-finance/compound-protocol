@@ -9,7 +9,8 @@ import {IV3SwapRouter} from "./../lib/interface/IV3SwapRouter.sol";
 import {GlpManager, GlpRewardRouter, IERC20} from "./interfaces/GMX.sol";
 import {TenderPriceOracle} from "./../Compound/TenderPriceOracle.sol";
 import {IWETH9} from "./../lib/IWETH9.sol";
-import "hardhat/console.sol";
+import 'hardhat/console.sol';
+// import '../../lib/forge-std/src/console2.sol';
 
 contract VaultStorage is Addresses {
   IERC20 public depositToken;
@@ -23,7 +24,7 @@ contract VaultStorage is Addresses {
 
   address[] public markets;
 
-  IWETH9 public constant WETH = IWETH9(0x82aF49447D8a07e3bd95BD0d56f35241523fBab1);
+  // IWETH9 public constant WETH = IWETH9(0x82aF49447D8a07e3bd95BD0d56f35241523fBab1);
 
   IERC20 public glp = IERC20(0x4277f8F2c384827B5273592FF7CeBd9f2C1ac258);
   IERC20 public fsGlp = IERC20(0x1aDDD80E6039594eE970E5872D247bf0414C8903);
@@ -39,29 +40,31 @@ contract VaultStorage is Addresses {
 
 contract TokenSwap {
   IV3SwapRouter public immutable swapRouter = IV3SwapRouter(0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45);
-  function swap(address tokenIn, address tokenOut, uint256 amount) internal returns (uint256 amountOut) {
-    TransferHelper.safeApprove(tokenIn, address(swapRouter), amount);
-    bytes memory path = abi.encodePacked(tokenIn, tokenOut);
 
-    IV3SwapRouter.ExactInputParams memory
-      params = IV3SwapRouter.ExactInputParams({
-        path: path,
+  function swap(address tokenIn, address tokenOut, uint256 amount) internal returns (uint256 amountOut) {
+    IERC20(tokenIn).approve(address(swapRouter), amount);
+    console.log('swapping %d', amount);
+    IV3SwapRouter.ExactInputSingleParams memory params =
+      IV3SwapRouter.ExactInputSingleParams({
+        tokenIn: tokenIn,
+        tokenOut: tokenOut,
+        fee: 3000,
         recipient: address(this),
         amountIn: amount,
-        amountOutMinimum: 0
+        amountOutMinimum: 0,
+        sqrtPriceLimitX96: 0
       });
-    // The call to `exactInput` executes the swap.
-    amountOut = swapRouter.exactInput(params);
+    amountOut = swapRouter.exactInputSingle(params);
   }
 }
+
 contract VaultHelper is VaultStorage, TokenSwap {
   using SafeMath for uint;
+
   function getUnderlying(address ctoken) public view returns (address) {
-    if(ctoken == tETH) {
-      return wETH;
-    }
-    return CToken(ctoken).underlying();
+    return (ctoken == tETH) ? wETH : CToken(ctoken).underlying();
   }
+
   function usdgAmounts(address token) public view returns (uint256){
     return glpVault.usdgAmounts(token); // weth 127657111,442541096364249993
   }
@@ -70,27 +73,27 @@ contract VaultHelper is VaultStorage, TokenSwap {
     return glpManager.getAumInUsdg(true); // 428851069,305319770736134981
   }
 
-  function calculateVaultPercentage(address token) public view returns (uint256){
+  function calculateVaultPercentageCurrent(address token) public view returns (uint256){
+    return usdgAmounts(token).mul(1e18).div(getAumInUsdg());
+  }
+
+  function calculateVaultPercentageTarget(address token) public view returns (uint256){
     return usdgAmounts(token).mul(1e18).div(getAumInUsdg());
   }
 
   function getGlpPrice() public view returns (uint256){
-    TenderPriceOracle oracle = TenderPriceOracle(comptroller.oracle());
     return oracle.getGlpAum().mul(1e18).div(glp.totalSupply());
   }
 
   function getUnderlyingPrice(address ctoken) public view returns (uint256) {
-    TenderPriceOracle oracle = TenderPriceOracle(comptroller.oracle());
     return oracle.getUnderlyingPrice(CToken(ctoken));
-  }
-
-  function proportion(uint a, uint b) public pure returns (uint256) {
-    return a.mul(1e18).div(b);
   }
 
   function calculateLeverageMultiplier() public view returns (uint) {
     uint totalValueThreshold = 1e18;
-    return totalValueThreshold.sub(collateralFactor).div(1e17);
+    uint maxValue = 100;
+    uint totalValueDividend = totalValueThreshold.sub(collateralFactor).div(1e16);
+    return maxValue.div(totalValueDividend);
   }
   function calculateLeveragedTotal(uint amount) public view returns (uint) {
     return amount.mul(calculateLeverageMultiplier());
@@ -98,48 +101,36 @@ contract VaultHelper is VaultStorage, TokenSwap {
   //get borrow usd total for a deposit amount
   function calculateBorrowUSDTotal(uint amount) public view returns (uint) {
     uint price = oracle.getUSDPrice(address(depositToken));
-    return amount.mul(calculateLeverageMultiplier()-1).mul(price).div(1e18);
+    uint total = amount.mul(calculateLeverageMultiplier()-1).mul(price).div(1e18);
+    return total;
   }
 
   function borrowTokenUSD(address ctoken, uint256 amountUsd) internal {
+    // this calculation is fucked, you need to review it carefully
+    uint underlyingDecimals = oracle.getUnderlyingDecimals(CToken(ctoken));
     uint256 tokenBorrowAmount = amountUsd
       .mul(1e18)
-      .div(oracle.getUSDPrice(getUnderlying(ctoken)));
+      .div(oracle.getUSDPrice(getUnderlying(ctoken)))
+      .mul(10**underlyingDecimals)
+      .div(1e18);
+    console.log('Borrow amount for %s: %d', IERC20(getUnderlying(ctoken)).symbol(), tokenBorrowAmount);
     CToken(ctoken).borrow(tokenBorrowAmount);
   }
 
-  receive() external payable {
-    glpRouter.mintAndStakeGlpEth(msg.value, 0, 0);
+  receive() external payable {}
+
+  function wrapEth () internal returns (uint) {
+    uint balancePrior = IERC20(wETH).balanceOf(address(this));
+    IWETH9(wETH).deposit{value:address(this).balance}();
+    return IERC20(wETH).balanceOf(address(this)).sub(balancePrior);
   }
 
-  function borrowAndSwap(uint borrowTotal) internal {
-    // TenderPriceOracle oracle = TenderPriceOracle(comptroller.oracle());
-    for (uint i = 0; i < markets.length; i++) {
-      CToken ctoken = CToken(markets[i]);
-      // uint underlyingDecimals = oracle.getUnderlyingDecimals(ctoken);
-      address underlying = getUnderlying(address(ctoken));
-      uint256 vaultPercent = calculateVaultPercentage(underlying);
-      uint256 toBorrowInUSD = borrowTotal.mul(vaultPercent).div(1e18);
-      borrowTokenUSD(address(ctoken), toBorrowInUSD);
-      if (address(ctoken) != tETH) {
-        swap(underlying, wETH, IERC20(underlying).balanceOf(address(this)));
-      } else if (address(ctoken) == tETH){
-        uint256 ethBalance = address(this).balance;
-        WETH.deposit{value:ethBalance}();
-      }
-
-      // uint256 usdPerToken = oracle.getUSDPrice(underlying).mul(10**underlyingDecimals).div(1e18);
-      // uint toBorrow = toBorrowInUSD.mul(10**underlyingDecimals).div(usdPerToken);
-      // console.log("borrowing %s", toBorrow);
-      // CERC20(address(ctoken)).borrow(toBorrow);
-    }
+  function borrowAndSwap(address ctoken, uint toBorrowUSD) internal returns (uint wEthIncrease) {
   }
 
   function approveVaultToken(uint amount) internal {
-    if (address(depositToken) == address(fsGlp)) {
-      return stakedGlp.approve(address(vaultToken), amount);
-    }
-    return depositToken.approve(address(vaultToken), amount);
+    IERC20 approver = (depositToken == fsGlp) ? stakedGlp : depositToken;
+    return approver.approve(address(vaultToken), amount);
   }
 
   function mintVaultToken(uint amount) internal {
@@ -160,20 +151,5 @@ contract VaultHelper is VaultStorage, TokenSwap {
     uint underlyingPrice = getUnderlyingPrice(ctoken);
     return getTokenBorrowLimit(account, ctoken).mul(underlyingPrice).div(1e18);
   }
-
-  // function getTotalBorrowable(address account) public view returns (uint256) {
-  //   address[] memory markets = comptroller.getAllMarkets();
-  //   uint256 borrowable = 0;
-  //   for (uint i = 0; i < markets.length; i++) {
-  //     address ctoken = markets[i];
-  //     uint256 borrowLimitUsd = getTokenBorrowLimitUsd(account, ctoken);
-  //     uint256 borrowBalanceStored = CToken(ctoken).borrowBalanceStored(account);
-  //     uint256 underlyingPrice = getUnderlyingPrice(ctoken);
-  //     uint256 currentBorrow = borrowBalanceStored.mul(underlyingPrice).div(1e18);
-  //
-  //     borrowable += borrowLimitUsd.sub(currentBorrow);
-  //   }
-  //   return borrowable;
-  // }
 }
 

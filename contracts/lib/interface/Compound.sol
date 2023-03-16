@@ -5,10 +5,10 @@ interface Comptroller{
   function oracle() external view returns (address);
   function markets(address) external view returns (
     bool isListed,
-    uint256 collateralFactorMantissa,
-    uint256 liquidationThresholdMantissa,
-    uint256 collateralFactorMantissaVip,
-    uint256 liquidationThresholdMantissaVip,
+    uint collateralFactorMantissa,
+    uint liquidationThresholdMantissa,
+    uint collateralFactorMantissaVip,
+    uint liquidationThresholdMantissaVip,
     bool isComped,
     bool isPrivate,
     bool onlyWhitelistedBorrow
@@ -24,18 +24,22 @@ interface Comptroller{
   function borrowVerify(address cToken, address borrower, uint borrowAmount) external;
   function getIsAccountVip(address account) external view returns (bool);
   function getAllMarkets() external view returns (address[] memory);
-  function getAccountLiquidity(address account) external view returns (uint256);
+  function getAccountLiquidity(address account) external view returns (uint, uint, uint);
+  function getHypotheticalAccountLiquidity(address account, address cTokenModify, uint redeemTokens, uint borrowAmount) external view returns (uint, uint, uint);
+  function _setPriceOracle(address oracle_) external;
+  function _supportMarket(address delegator, bool isComped, bool isPrivate, bool onlyWhitelistedBorrow) external;
+  function _setFactorsAndThresholds(address delegator, uint collateralFactor, uint collateralVIP, uint threshold, uint thresholdVIP) external;
 }
 
 interface IERC20 {
   /** @dev Returns the amount of tokens in existence. */
-  function totalSupply() external view returns (uint256);
+  function totalSupply() external view returns (uint);
   function decimals() external view returns (uint8);
-  function approve(address spender, uint256 amount) external;
-  function transfer(address recipient, uint256 amount) external;
-  function transferFrom(address sender, address recipient, uint256 amount) external;
-  function balanceOf(address account) external view returns (uint256);
-  function allowance(address owner, address spender) external view returns (uint256);
+  function approve(address spender, uint amount) external;
+  function transfer(address recipient, uint amount) external;
+  function transferFrom(address sender, address recipient, uint amount) external;
+  function balanceOf(address account) external view returns (uint);
+  function allowance(address owner, address spender) external view returns (uint);
   function symbol() external view returns (string memory);
 }
 
@@ -49,8 +53,8 @@ interface CERC20 is IERC20 {
   function repayBorrow(uint repayAmount) external returns (uint);
   function repayBorrowBehalf(address borrower, uint repayAmount) external returns (uint);
   function liquidateBorrow(address borrower, uint repayAmount, address cTokenCollateral) external returns (uint);
-  function depositNFT(address _NFTAddress, uint256 _TokenID) external;
-  function withdrawNFT(address _NFTAddress, uint256 _TokenID) external;
+  function depositNFT(address _NFTAddress, uint _TokenID) external;
+  function withdrawNFT(address _NFTAddress, uint _TokenID) external;
   function compound() external returns (uint);
 }
 

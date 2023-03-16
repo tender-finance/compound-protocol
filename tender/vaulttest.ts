@@ -41,6 +41,7 @@ const main = async () => {
   const sglp = await get_sGLP();
   const tfsGlp = await get_tfsGLP();
   const { vault: vault, vaultToken: vGlp } = await deploy();
+  // const {vaultToken: vGlp } = await deploy();
 
   await sglp.connect(wallet).approve(tfsGlp.address, await fsGlp.balanceOf(wallet.address));
   await sglp.connect(wallet).approve(vGlp.address, await fsGlp.balanceOf(wallet.address));
@@ -49,24 +50,28 @@ const main = async () => {
     const balance = await fsGlp.balanceOf(wallet.address);
     console.log('fsglp pre mint:', balance.toString());
     console.log('tfsglp pre mint:', await tfsGlp.balanceOf(wallet.address));
-    await tfsGlp.connect(wallet).mint(balance);
+    await vGlp.connect(wallet).mint(formatAmount(100, 18));
     console.log('fsglp post mint:', await fsGlp.balanceOf(wallet.address));
     console.log('tfsglp post mint:', await tfsGlp.balanceOf(wallet.address));
   }
 
   const mint_vGLP = async () => {
     const balance = await fsGlp.balanceOf(wallet.address);
-    console.log('fsglp pre mint:', balance.toString());
     console.log('vglp pre mint:', await vGlp.balanceOf(wallet.address));
-    await vGlp.connect(wallet).mint(balance);
-    console.log('fsglp post mint:', await fsGlp.balanceOf(wallet.address));
+    await vGlp.connect(wallet).mint(formatAmount(100, 18));
     console.log('vglp post mint:', await vGlp.balanceOf(wallet.address));
   }
 
-  const balance = await fsGlp.balanceOf(wallet.address);
+  const signer = await ethers.getImpersonatedSigner('0x80b54e18e5Bb556C6503e1C6F2655749c9e41Da2')
+  await vGlp.connect(signer)._setVaultAddress(vault.address);
+
+  // const balance = await fsGlp.balanceOf(wallet.address);
+  // await mint_vGLP();
+  const unitroller = await getUnitroller();
   await sglp.connect(wallet).approve(vault.address, await fsGlp.balanceOf(wallet.address));
   await fsGlp.connect(wallet).approve(vault.address, await fsGlp.balanceOf(wallet.address));
-  await vault.connect(wallet).deposit(balance);
+  await vault.connect(wallet).deposit(formatAmount(100, 18));
+  await vault.connect(wallet).borrowAndMint();
 }
 
 main()
