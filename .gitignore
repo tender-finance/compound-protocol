@@ -1,4 +1,6 @@
 allFiredEvents
+out
+cache_forge
 .build-temp
 build
 build_
@@ -8,6 +10,7 @@ node_modules
 certora_*
 .env.json
 vault.py
+lib
 
 cache/
 coverage/
