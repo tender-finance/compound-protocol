@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 pragma solidity ^0.8.10;
 
-import "./IRModelTnd.sol";
+import "./BaseJumpRateModelV2Tnd.sol";
 import "./InterestRateModel.sol";
 
 
