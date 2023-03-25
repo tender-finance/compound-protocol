@@ -8,7 +8,6 @@ import {ICToken} from './interfaces/CToken.sol';
 import {IERC20} from './interfaces/Tokens.sol';
 import {Addresses} from './helpers/Addresses.sol';
 import {GlpHelper} from './helpers/GlpHelper.sol';
-// import './../../lib/forge-std/src/console2.sol';
 
 interface ChainlinkPriceOracle {
   function latestAnswer() external view returns (uint256);
