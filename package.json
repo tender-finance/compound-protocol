@@ -59,6 +59,7 @@
     "@nomicfoundation/solidity-analyzer": "^0.0.3",
     "@openzeppelin/contracts": "^4.8.1",
     "@openzeppelin/hardhat-upgrades": "^1.20.0",
+    "@pythnetwork/pyth-sdk-solidity": "^2.2.1",
     "@solidity-parser/parser": "^0.13.2",
     "@tenderly/hardhat-tenderly": "^1.1.6",
     "eth-saddle": "^0.1.25",
