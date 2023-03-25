@@ -16,10 +16,15 @@ const token = {
   symbol: 'tARB',
   decimals: 8,
   isGLP: false,
-  collateralFactor: formatAmount("10", 16),
-  collateralVIP: formatAmount("15", 16),
+  collateralFactor: formatAmount("30", 16),
+  collateralVIP: formatAmount("35", 16),
   threshold: formatAmount("40", 16),
   thresholdVIP: formatAmount("45", 16),
+}
+
+const getSigner = async () => {
+  const [signer] = await ethers.getSigners();
+  return signer;
 }
 
 export const deployOracle = async () => {
@@ -37,24 +42,21 @@ export const deployOracle = async () => {
     );
     const tenderOracle = await TenderOracle.deploy()
     await tenderOracle.setOracle(token.underlying, pythOracle.address);
+    console.log('tenderOracle', tenderOracle.address);
     return tenderOracle;
   }
   const pythOracle = await deployPythOracle();
+  console.log('pythOracle', pythOracle.address);
   return await deployTenderOracle(pythOracle);
 }
 
 // placeholder with gmx IRModel
-export async function deployToken(oracle: any) {
-  const [deployer] = await hre.ethers.getSigners();
-  const unitrollerAddress: string = deployments.Unitroller;
+export async function deployToken () {
+  const unitrollerAddress = deployments.Unitroller;
   const irModelAddress: string = deployments.IRModels.JumpRateModelV2;
+  const signer = await getSigner();
 
-  const unitrollerProxy = await hre.ethers.getContractAt("Comptroller", unitrollerAddress);
-  const adminAddress = await unitrollerProxy.admin();
-  const admin = await ethers.getImpersonatedSigner(adminAddress);
-
-  const CErc20Delegate = await  hre.ethers.getContractFactory("CErc20Delegate", admin);
-  const CErc20Delegator = await  hre.ethers.getContractFactory("CErc20Delegator", admin);
+  const CErc20Delegator = await  hre.ethers.getContractFactory("CErc20Delegator", signer);
 
   const erc20Underlying = await hre.ethers.getContractAt(
     "EIP20Interface",
@@ -63,9 +65,6 @@ export async function deployToken(oracle: any) {
   const underlyingDecimals = await erc20Underlying.decimals();
   const totalDecimals = underlyingDecimals + token.decimals;
   const initialExcRateMantissaStr = numToWei("2", totalDecimals);
-
-  const deployedCErc20Delegate = await CErc20Delegate.deploy();
-  const delegateAddress = deployedCErc20Delegate.address;
 
   const delegator = await CErc20Delegator.deploy(
     token.underlying,
@@ -76,11 +75,21 @@ export async function deployToken(oracle: any) {
     token.symbol,
     token.decimals,
     token.isGLP === true,
-    adminAddress,
-    delegateAddress,
+    signer.address,
+    deployments.delegate,
     Buffer.from([0x0])
   );
 
+  return {
+    tArb: await ethers.getContractAt('CErc20Delegate', delegator.address, signer)
+  }
+}
+
+export async function addToMarkets(oracle: any, delegator: any) {
+  const unitrollerAddress = deployments.Unitroller;
+  const unitrollerProxy = await ethers.getContractAt('Comptroller', unitrollerAddress);
+  const adminAddress = await unitrollerProxy.admin()
+  const admin = await ethers.getImpersonatedSigner(adminAddress);
   await unitrollerProxy.connect(admin)._setPriceOracle(oracle.address)
   let isPrivate = false;
   let isComped = true;
@@ -103,8 +112,4 @@ export async function deployToken(oracle: any) {
     token.threshold,
     token.thresholdVIP
   );
-  return {
-    tArb: await ethers.getContractAt('CErc20Delegate', delegator.address, admin)
-  }
 }
-
