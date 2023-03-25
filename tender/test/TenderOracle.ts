@@ -41,11 +41,24 @@ const getCurrentPrices = async () => {
 describe("TenderOracle", () => {
   it('Should return same prices for every token', async () => {
     const currentPrices = await getCurrentPrices();
-    const tenderOracle = await deployOracle()
+    const tenderOracle = await loadFixture(deployOracle);
     const newPrices = await getPrices(tenderOracle);
+
     for (let i = 0; i < currentPrices.length; i++) {
       const test = currentPrices[i].sub(newPrices[i]) == 0;
       expect(test).to.be.true;
     }
+  })
+  it('ARB should have a price with 8 decimals', async () => {
+    const tenderOracle = await loadFixture(deployOracle);
+    const decimals = await tenderOracle.getOracleDecimals('0x912CE59144191C1204E64559FE8253a0e49E6548');
+    expect(decimals).to.equal(8);
+  })
+  it('Should return a price for ARB', async () => {
+    const tenderOracle = await loadFixture(deployOracle);
+    const tARB = '0xC6121d58E01B3F5C88EB8a661770DB0046523539'
+    const price = await tenderOracle.getUnderlyingPrice(tARB);
+    const test = price.gt(0);
+    expect(test).to.be.true;
   })
 })
