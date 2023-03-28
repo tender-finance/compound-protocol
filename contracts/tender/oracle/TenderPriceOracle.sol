@@ -3,11 +3,11 @@ pragma solidity ^0.8.10;
 
 import '@openzeppelin/contracts/utils/math/SafeMath.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
-import {IComptroller} from './interfaces/Comptroller.sol';
-import {ICToken} from './interfaces/CToken.sol';
-import {IERC20} from './interfaces/Tokens.sol';
-import {Addresses} from './helpers/Addresses.sol';
-import {GlpHelper} from './helpers/GlpHelper.sol';
+import {IComptroller} from './../interfaces/Comptroller.sol';
+import {ICToken} from './../interfaces/CToken.sol';
+import {IERC20} from './../interfaces/Tokens.sol';
+import {Addresses} from './../helpers/Addresses.sol';
+import {GlpHelper} from './../helpers/GlpHelper.sol';
 
 interface ChainlinkPriceOracle {
   function latestAnswer() external view returns (uint256);
