@@ -19,7 +19,7 @@ contract GlpHelper is GMXAddresses {
   }
 
   function getGlpAum() public view returns (uint) {
-    return manager.getAumInUsdg(true);
+    return glpManager.getAumInUsdg(true);
   }
 
   function getGlpPrice() public view returns (uint) {

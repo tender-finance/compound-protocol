@@ -1,0 +1,507 @@
+{
+  "_format": "ethers-rs-sol-cache-3",
+  "paths": {
+    "artifacts": "out",
+    "build_infos": "out/build-info",
+    "sources": "tender/test/forge",
+    "tests": "tender/test/forge",
+    "scripts": "script",
+    "libraries": [
+      "lib",
+      "node_modules"
+    ]
+  },
+  "files": {
+    "contracts/Compound/CErc20Delegator.sol": {
+      "lastModificationDate": 1679084791990,
+      "contentHash": "63eb9fed2352ee78797394b35892a772",
+      "sourceName": "contracts/Compound/CErc20Delegator.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout"
+              ]
+            }
+          },
+          "evmVersion": "london",
+          "libraries": {}
+        }
+      },
+      "imports": [
+        "contracts/Compound/CTokenInterfaces.sol",
+        "contracts/Compound/ComptrollerInterface.sol",
+        "contracts/Compound/EIP20Interface.sol",
+        "contracts/Compound/EIP20NonStandardInterface.sol",
+        "contracts/Compound/ErrorReporter.sol",
+        "contracts/Compound/InterestRateModel.sol",
+        "contracts/lib/interface/IGmxRewardRouter.sol",
+        "contracts/lib/interface/IRewardTracker.sol",
+        "contracts/lib/interface/IStakedGlp.sol",
+        "contracts/token/IERC721Receiver.sol"
+      ],
+      "versionRequirement": "^0.8.10",
+      "artifacts": {
+        "CErc20Delegator": {
+          "0.8.10+commit.fc410830.Linux.gcc": "CErc20Delegator.sol/CErc20Delegator.json"
+        }
+      }
+    },
+    "contracts/Compound/CTokenInterfaces.sol": {
+      "lastModificationDate": 1679084791993,
+      "contentHash": "0b24d0c30a5c41b1ba7ef4619ee40d10",
+      "sourceName": "contracts/Compound/CTokenInterfaces.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout"
+              ]
+            }
+          },
+          "evmVersion": "london",
+          "libraries": {}
+        }
+      },
+      "imports": [
+        "contracts/Compound/ComptrollerInterface.sol",
+        "contracts/Compound/EIP20NonStandardInterface.sol",
+        "contracts/Compound/ErrorReporter.sol",
+        "contracts/Compound/InterestRateModel.sol",
+        "contracts/lib/interface/IGmxRewardRouter.sol",
+        "contracts/lib/interface/IRewardTracker.sol",
+        "contracts/lib/interface/IStakedGlp.sol"
+      ],
+      "versionRequirement": "^0.8.10",
+      "artifacts": {
+        "CDelegateInterface": {
+          "0.8.10+commit.fc410830.Linux.gcc": "CTokenInterfaces.sol/CDelegateInterface.json"
+        },
+        "CDelegationStorage": {
+          "0.8.10+commit.fc410830.Linux.gcc": "CTokenInterfaces.sol/CDelegationStorage.json"
+        },
+        "CDelegatorInterface": {
+          "0.8.10+commit.fc410830.Linux.gcc": "CTokenInterfaces.sol/CDelegatorInterface.json"
+        },
+        "CErc20Interface": {
+          "0.8.10+commit.fc410830.Linux.gcc": "CTokenInterfaces.sol/CErc20Interface.json"
+        },
+        "CErc20Storage": {
+          "0.8.10+commit.fc410830.Linux.gcc": "CTokenInterfaces.sol/CErc20Storage.json"
+        },
+        "CTokenInterface": {
+          "0.8.10+commit.fc410830.Linux.gcc": "CTokenInterfaces.sol/CTokenInterface.json"
+        },
+        "CTokenStorage": {
+          "0.8.10+commit.fc410830.Linux.gcc": "CTokenInterfaces.sol/CTokenStorage.json"
+        }
+      }
+    },
+    "contracts/Compound/ComptrollerInterface.sol": {
+      "lastModificationDate": 1679084791997,
+      "contentHash": "d4d1ccdb09dc0c8229745a219e637cf3",
+      "sourceName": "contracts/Compound/ComptrollerInterface.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout"
+              ]
+            }
+          },
+          "evmVersion": "london",
+          "libraries": {}
+        }
+      },
+      "imports": [],
+      "versionRequirement": "^0.8.10",
+      "artifacts": {
+        "ComptrollerInterface": {
+          "0.8.10+commit.fc410830.Linux.gcc": "ComptrollerInterface.sol/ComptrollerInterface.json"
+        }
+      }
+    },
+    "contracts/Compound/EIP20Interface.sol": {
+      "lastModificationDate": 1679084791997,
+      "contentHash": "c00d6a06d24b7bbaee081458554a68ac",
+      "sourceName": "contracts/Compound/EIP20Interface.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout"
+              ]
+            }
+          },
+          "evmVersion": "london",
+          "libraries": {}
+        }
+      },
+      "imports": [],
+      "versionRequirement": "^0.8.10",
+      "artifacts": {
+        "EIP20Interface": {
+          "0.8.10+commit.fc410830.Linux.gcc": "EIP20Interface.sol/EIP20Interface.json"
+        }
+      }
+    },
+    "contracts/Compound/EIP20NonStandardInterface.sol": {
+      "lastModificationDate": 1679084791997,
+      "contentHash": "e27a903d064172c95703d59e56bef727",
+      "sourceName": "contracts/Compound/EIP20NonStandardInterface.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout"
+              ]
+            }
+          },
+          "evmVersion": "london",
+          "libraries": {}
+        }
+      },
+      "imports": [],
+      "versionRequirement": "^0.8.10",
+      "artifacts": {
+        "EIP20NonStandardInterface": {
+          "0.8.10+commit.fc410830.Linux.gcc": "EIP20NonStandardInterface.sol/EIP20NonStandardInterface.json"
+        }
+      }
+    },
+    "contracts/Compound/ErrorReporter.sol": {
+      "lastModificationDate": 1679084791997,
+      "contentHash": "441979e5c6e812ec8398fddfc911094c",
+      "sourceName": "contracts/Compound/ErrorReporter.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout"
+              ]
+            }
+          },
+          "evmVersion": "london",
+          "libraries": {}
+        }
+      },
+      "imports": [],
+      "versionRequirement": "^0.8.10",
+      "artifacts": {
+        "ComptrollerErrorReporter": {
+          "0.8.10+commit.fc410830.Linux.gcc": "ErrorReporter.sol/ComptrollerErrorReporter.json"
+        },
+        "TokenErrorReporter": {
+          "0.8.10+commit.fc410830.Linux.gcc": "ErrorReporter.sol/TokenErrorReporter.json"
+        }
+      }
+    },
+    "contracts/Compound/InterestRateModel.sol": {
+      "lastModificationDate": 1679084791997,
+      "contentHash": "7a4e1aca0dcc298faae9884dde2b6d19",
+      "sourceName": "contracts/Compound/InterestRateModel.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout"
+              ]
+            }
+          },
+          "evmVersion": "london",
+          "libraries": {}
+        }
+      },
+      "imports": [],
+      "versionRequirement": "^0.8.10",
+      "artifacts": {
+        "InterestRateModel": {
+          "0.8.10+commit.fc410830.Linux.gcc": "InterestRateModel.sol/InterestRateModel.json"
+        }
+      }
+    },
+    "contracts/lib/interface/IGmxRewardRouter.sol": {
+      "lastModificationDate": 1679084792000,
+      "contentHash": "171a8c1091ec248789a4723b7e6473f2",
+      "sourceName": "contracts/lib/interface/IGmxRewardRouter.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout"
+              ]
+            }
+          },
+          "evmVersion": "london",
+          "libraries": {}
+        }
+      },
+      "imports": [],
+      "versionRequirement": "=0.8.10",
+      "artifacts": {
+        "IGmxRewardRouter": {
+          "0.8.10+commit.fc410830.Linux.gcc": "IGmxRewardRouter.sol/IGmxRewardRouter.json"
+        }
+      }
+    },
+    "contracts/lib/interface/IRewardTracker.sol": {
+      "lastModificationDate": 1679084792000,
+      "contentHash": "7db5ccc9eaf212668f6b2bac69e8322b",
+      "sourceName": "contracts/lib/interface/IRewardTracker.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout"
+              ]
+            }
+          },
+          "evmVersion": "london",
+          "libraries": {}
+        }
+      },
+      "imports": [],
+      "versionRequirement": "^0.8.10",
+      "artifacts": {
+        "IRewardTracker": {
+          "0.8.10+commit.fc410830.Linux.gcc": "IRewardTracker.sol/IRewardTracker.json"
+        }
+      }
+    },
+    "contracts/lib/interface/IStakedGlp.sol": {
+      "lastModificationDate": 1679084792000,
+      "contentHash": "dce3154bb17455a92678a6754b072428",
+      "sourceName": "contracts/lib/interface/IStakedGlp.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout"
+              ]
+            }
+          },
+          "evmVersion": "london",
+          "libraries": {}
+        }
+      },
+      "imports": [],
+      "versionRequirement": "=0.8.10",
+      "artifacts": {
+        "IStakedGlp": {
+          "0.8.10+commit.fc410830.Linux.gcc": "IStakedGlp.sol/IStakedGlp.json"
+        }
+      }
+    },
+    "contracts/token/IERC721Receiver.sol": {
+      "lastModificationDate": 1679084792000,
+      "contentHash": "551dcb80a72b5a348fc751b09c2f0e88",
+      "sourceName": "contracts/token/IERC721Receiver.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout"
+              ]
+            }
+          },
+          "evmVersion": "london",
+          "libraries": {}
+        }
+      },
+      "imports": [],
+      "versionRequirement": "^0.8.10",
+      "artifacts": {
+        "IERC721Receiver": {
+          "0.8.10+commit.fc410830.Linux.gcc": "IERC721Receiver.sol/IERC721Receiver.json"
+        }
+      }
+    }
+  }
+}

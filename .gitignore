@@ -53,6 +53,8 @@ typechain/*
 typechain-types/*
 artifacts/*
 cache/*
+testcmd.txt
 
 # hardhat-tenderly plugin
 deployments
+out

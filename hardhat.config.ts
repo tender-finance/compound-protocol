@@ -2,6 +2,7 @@ import "@typechain/hardhat";
 import "@nomiclabs/hardhat-waffle";
 import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-ethers";
+import '@nomicfoundation/hardhat-foundry'
 import { HardhatUserConfig } from "hardhat/config";
 
 import {
@@ -47,6 +48,7 @@ const config: HardhatUserConfig = {
       forking: {
         url: ARBITRUM_RPC,
         enabled: true,
+        blockNumber: 74402430,
       },
     },
   },

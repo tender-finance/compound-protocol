@@ -15,6 +15,8 @@ interface IGlpRewardRouter {
 }
 
 interface IRewardTracker {
+  function balanceOf(address _account) external view returns (uint256);
+  function approve(address _spender, uint256 _amount) external returns (bool);
   function depositBalances(address _account, address _depositToken) external view returns (uint256);
   function stakedAmounts(address _account) external view returns (uint256);
   function updateRewards() external;

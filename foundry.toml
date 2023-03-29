@@ -1,0 +1,6 @@
+[profile.default]
+src = 'tender/test/forge'
+out = 'out'
+libs = ['node_modules', 'lib']
+test = 'tender/test/forge'
+cache_path  = 'cache_forge'
