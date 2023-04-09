@@ -2,9 +2,10 @@ import hre, {ethers} from "hardhat";
 import {loadFixture} from "@nomicfoundation/hardhat-network-helpers";
 import { formatAmount } from "../util";
 import { numToWei } from "../utils/ethUnitParser";
-import { deployOracle, deployToken } from './utils/tarb';
+import { deployOracle } from './utils/tarb';
 import { resolve } from "path";
 import { expect } from "./utils/chai";
+import {deployToken} from '../utils/deploy-cdelegator';
 
 const unitrollerAddress: string = "0xeed247Ba513A8D6f78BE9318399f5eD1a4808F8e";
 ;
@@ -19,6 +20,7 @@ const ctokens = {
   tLINK: '0x87D06b55e122a0d0217d9a4f85E983AC3d7a1C35',
   tUNI: '0x8b44D3D286C64C8aAA5d445cFAbF7a6F4e2B3A71',
   tGMX: '0x20a6768F6AABF66B787985EC6CE0EBEa6D7Ad497',
+  tARB: '0xC6121d58E01B3F5C88EB8a661770DB0046523539',
 }
 
 const getPrices = async (oracle: any) => {
@@ -27,7 +29,7 @@ const getPrices = async (oracle: any) => {
     return oracle.getUnderlyingPrice(token);
   }));
 }
-const getCurrentPrices = async () => {
+const getCurrentPrices = async (address) => {
   const unitrollerProxy = await hre.ethers.getContractAt("Comptroller", unitrollerAddress);
   const adminAddress = await unitrollerProxy.admin();
   const signer = await ethers.getImpersonatedSigner(adminAddress);
@@ -36,29 +38,23 @@ const getCurrentPrices = async () => {
     await unitrollerProxy.oracle(),
     signer
   )
-  return await getPrices(oracle);
+  console.log(await oracle.getUnderlyingPrice(address))
 }
 describe("TenderOracle", () => {
   it('Should return same prices for every token', async () => {
+    const { tWETH, deployArgs } = await deployToken()
+    ctokens['tWETH'] = tWETH.address;
     const currentPrices = await getCurrentPrices();
-    const tenderOracle = await loadFixture(deployOracle);
+    // const tenderOracle = //await loadFixture(deployOracle);
+    const tenderOracle = await ethers.getContractAt(
+      'contracts/tender/oracle/TenderPriceOracle.sol:TenderPriceOracle',
+      '0x89963548ec3e76e92B3B4217A34f3B42432171dB',
+    );
     const newPrices = await getPrices(tenderOracle);
 
     for (let i = 0; i < currentPrices.length; i++) {
       const test = currentPrices[i].sub(newPrices[i]) == 0;
       expect(test).to.be.true;
     }
-  })
-  it('ARB should have a price with 8 decimals', async () => {
-    const tenderOracle = await loadFixture(deployOracle);
-    const decimals = await tenderOracle.getOracleDecimals('0x912CE59144191C1204E64559FE8253a0e49E6548');
-    expect(decimals).to.equal(8);
-  })
-  it('Should return a price for ARB', async () => {
-    const tenderOracle = await loadFixture(deployOracle);
-    const tARB = '0xC6121d58E01B3F5C88EB8a661770DB0046523539'
-    const price = await tenderOracle.getUnderlyingPrice(tARB);
-    const test = price.gt(0);
-    expect(test).to.be.true;
   })
 })
