@@ -1,8 +1,9 @@
+import "@nomiclabs/hardhat-ethers";
 import hre, { ethers } from 'hardhat';
-import { formatAmount, fundWithEth } from './util'
-import { deploy } from './deploy/tndMarket'
+import { formatAmount, fundWithEth } from '../utils'
+import { deploy } from '../deploy/tndMarket'
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
-import { expect } from './utils/chai'
+import { expect } from '../utils/chai'
 
 
 const unitrollerAddress = '0xeed247Ba513A8D6f78BE9318399f5eD1a4808F8e'

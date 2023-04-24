@@ -16,7 +16,7 @@ import "./../token/IERC721.sol";
  * @author Compound
  */
 contract Comptroller is
-    ComptrollerV7Storage,
+    ComptrollerV8Storage,
     ComptrollerInterface,
     ComptrollerErrorReporter,
     ExponentialNoError
@@ -1990,7 +1990,6 @@ contract Comptroller is
      function setTndAddress(address tndAddress_) external {
         require(msg.sender == admin, "only admin can set compAddress");
         tndAddress = tndAddress_;
-        
     }
 
     function setImmutableCompAddress() external {
@@ -2008,6 +2007,11 @@ contract Comptroller is
     function setVipNft(address _vipNft) external {
         require(msg.sender == admin, "only admin can set Vip NFT");
         vipNft = _vipNft;
+    }
+
+    function setExtStorageAddress(address extStorage_) external {
+        require(msg.sender == admin, "only admin can set extendedStorageAddress");
+        extStorage = extStorage_;
     }
 
     function setTokenBalanceVipThreshold(uint256 _tokenBalanceVipThreshold)

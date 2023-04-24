@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: BSD-3-Clause
 pragma solidity ^0.8.10;
-
 import "./CTokenInterfaces.sol";
 import "./../lib/interface/IGmxRewardRouter.sol";
 import "./../lib/interface/IStakedGlp.sol";

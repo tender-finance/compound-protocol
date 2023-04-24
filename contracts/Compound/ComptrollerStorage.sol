@@ -194,5 +194,9 @@ contract ComptrollerV7Storage is ComptrollerV6Storage {
 
     uint256 public tokenBalanceVipThreshold;
 
-    
 }
+
+contract ComptrollerV8Storage is ComptrollerV7Storage {
+    address extStorage;
+}
+

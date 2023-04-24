@@ -1,13 +1,11 @@
-import hre from "hardhat";
 import "@nomiclabs/hardhat-ethers"
-import { readFileSync, writeFileSync } from "fs";
+import hre from "hardhat";
+import { readFileSync} from "fs";
 import { resolve } from "path";
 
-export async function deployComptroller(deploymentFp) {
-  const outputFilePath = resolve(
-    __dirname,
-    `../../../deployments/${hre.network.name}.json`
-  );
+
+export async function deployComptroller() {
+  const outputFilePath = resolve(__dirname, `../../../deployments/arbitrum.json`);
   const [deployer] = await hre.ethers.getSigners();
   console.log(`>>>>>>>>>>>> Deployer: ${deployer.address} <<<<<<<<<<<<\n`);
 
@@ -19,13 +17,13 @@ export async function deployComptroller(deploymentFp) {
 
   console.log("Comptroller deployed to:", comptroller.address);
   console.log("calling unitroller._setPendingImplementation()");
+
   const unitroller = await hre.ethers.getContractAt("Unitroller", unitrollerAddr);
   const adminAddress = await unitroller.admin();
+  await deployer.sendTransaction({ to: adminAddress, value: hre.ethers.utils.parseEther("0.5") });
+
   const admin = await hre.ethers.getImpersonatedSigner(adminAddress);
-  let _tx = await unitroller.connect(admin)._setPendingImplementation(comptroller.address);
-  _tx = await comptroller.connect(admin)._become(unitrollerAddr);
-  // save data
-  deployments["Comptroller"] = comptroller.address;
-  writeFileSync(outputFilePath, JSON.stringify(deployments, null, 2));
+  await unitroller.connect(admin)._setPendingImplementation(comptroller.address);
+  await comptroller.connect(admin)._become(unitrollerAddr);
   return unitroller;
 }
