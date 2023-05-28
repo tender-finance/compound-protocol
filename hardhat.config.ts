@@ -43,6 +43,7 @@ const config: HardhatUserConfig = {
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
     hardhat: {
+      chainId: 42161,
       allowUnlimitedContractSize: true,
       forking: {
         url: ARBITRUM_RPC,
